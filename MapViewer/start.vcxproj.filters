@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="源文件\BitMap">
+      <UniqueIdentifier>{d3655f53-2f23-48d6-ba8d-b0a385ce11eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Utilities">
+      <UniqueIdentifier>{0b2d48da-0203-41af-be71-091623d23f00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Components">
+      <UniqueIdentifier>{3f1ecefd-5c8d-4f53-a329-8d52e57ca538}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\WinTiming.cpp">
+      <Filter>源文件\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\Profiling.cpp">
+      <Filter>源文件\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="FractalNoise.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Perlin.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="RandomGenerator.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="StrangeTree.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Componenets\Camera.cpp">
+      <Filter>源文件\Components</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BitMap\BitMap.h">
+      <Filter>源文件\BitMap</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\WinTiming.h">
+      <Filter>源文件\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\Profiling.h">
+      <Filter>源文件\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="FractalNoise.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Perlin.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomGenerator.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="StrangeTree.h" />
+    <ClInclude Include="Componenets\Camera.h">
+      <Filter>源文件\Components</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

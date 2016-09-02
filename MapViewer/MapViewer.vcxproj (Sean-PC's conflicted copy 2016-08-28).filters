@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="FractalNoise.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Perlin.cpp" />
+    <ClCompile Include="RandomGenerator.cpp" />
+    <ClCompile Include="StrangeTree.cpp" />
+    <ClCompile Include="Utilities\WinTiming.cpp" />
+    <ClCompile Include="Componenets\Camera.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Componenets\Mesh.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Componenets\MeshPoints.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Componenets\Material.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Componenets\Texture.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\stb_image.c">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="GreedyMeshing.cpp" />
+    <ClCompile Include="Block.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BitMap\BitMap.h" />
+    <ClInclude Include="FractalNoise.h" />
+    <ClInclude Include="Perlin.h" />
+    <ClInclude Include="RandomGenerator.h" />
+    <ClInclude Include="StrangeTree.h" />
+    <ClInclude Include="Utilities.h" />
+    <ClInclude Include="Utilities\WinTiming.h" />
+    <ClInclude Include="Componenets\Camera.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Componenets\Mesh.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Componenets\MeshPoints.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Componenets\Material.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Componenets\Texture.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\stb_image.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="GreedyMeshing.h" />
+    <ClInclude Include="Block.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Components">
+      <UniqueIdentifier>{05d149a7-b2de-4a4b-8a9d-fc3759f68386}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{93f7c0d5-1319-42d9-8a80-f6bf0cc0761a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utilities">
+      <UniqueIdentifier>{1f264bd5-1402-47c3-bb72-78fedcd1f578}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\frag.shader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\vert.shader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\vertFlat.shader">
+      <Filter>Shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>
