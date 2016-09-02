@@ -1,0 +1,11 @@
+*.sdf
+[Dd]ebug*/
+[Rr]elease*/
+*.log
+*.obj
+MapViewer/Debug/Camera.obj
+MapViewer/Debug/Camera.obj
+MapViewer/Debug/Chunk.obj
+*.suo
+*.filters
+*.vcxproj

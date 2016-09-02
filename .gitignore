@@ -1,0 +1,9 @@
+*.sdf
+[Dd]ebug*/
+[Rr]elease*/
+*.log
+*.obj
+*.suo
+*.filters
+*.vcxproj
+*.vcxproj

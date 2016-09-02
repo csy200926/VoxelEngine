@@ -1,13 +1,8 @@
 #pragma once
 #include <glm.hpp>
-#include <memory.h>
-#define CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
-#ifdef _DEBUG
-#define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
-#define new DEBUG_NEW
-#endif
+#include <vector>
+#include "../Componenets/Mesh.h"
+#include "../Utilities/Debugging.h"
 class Tile
 {
 public:
@@ -40,7 +35,7 @@ namespace Rendering
 class Chunk
 {
 public:
-	Rendering::Mesh* pMesh;
+	Rendering::Mesh m_Mesh;
 	Tile **pTiles; //16 length
 
 	glm::vec2 chunkID;
@@ -56,7 +51,7 @@ public:
 
 	Chunk()
 	{
-
+		
 	}
 
 	~Chunk()
@@ -65,7 +60,7 @@ public:
 		{
 			delete pTiles[i];
 		}
-		delete pMesh;
+
 		delete[] pTiles;
 	}
 

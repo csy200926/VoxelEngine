@@ -42,11 +42,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <EmbedManifest>false</EmbedManifest>
-    <OutDir>$(SolutionDir)$(Configuration)\..\..\..\..\..\Cube_Project_New\UnityProject</OutDir>
+    <OutDir>$(SolutionDir)$(Configuration)\..\..\..\Cube_Project_New\UnityProject</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Configuration)\..\..\..\..\..\Cube_Project_New\UnityProject</OutDir>
+    <OutDir>$(SolutionDir)$(Configuration)\..\..\..\Cube_Project_New\UnityProject</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -118,6 +118,7 @@
     <ClInclude Include="RandomGenerator.h" />
     <ClInclude Include="StrangeTree.h" />
     <ClInclude Include="Utilities.h" />
+    <ClInclude Include="Utilities\Debugging.h" />
     <ClInclude Include="Utilities\stb_image.h" />
     <ClInclude Include="Utilities\WinTiming.h" />
   </ItemGroup>

@@ -11,8 +11,6 @@ void Chunk::GenerateMesh()
 	vector<Vertex> vertices;
 	vector<unsigned int>indices;
 
-	pMesh = new Rendering::Mesh();
-
 	GreedyMesshing greedyMeshing;
 
 
@@ -22,7 +20,7 @@ void Chunk::GenerateMesh()
 	}
 
 
-	pMesh->LoadFromList(vertices, indices);
+	m_Mesh.LoadFromList(vertices, indices);
 }
 
 void Chunk::UpdateNeighborInfo()

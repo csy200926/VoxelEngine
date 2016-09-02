@@ -6,7 +6,6 @@
     <ClCompile Include="Perlin.cpp" />
     <ClCompile Include="RandomGenerator.cpp" />
     <ClCompile Include="StrangeTree.cpp" />
-    <ClCompile Include="Utilities\WinTiming.cpp" />
     <ClCompile Include="Componenets\Camera.cpp">
       <Filter>Components</Filter>
     </ClCompile>
@@ -32,6 +31,9 @@
     <ClCompile Include="Game\Chunk.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="Utilities\WinTiming.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BitMap\BitMap.h" />
@@ -40,7 +42,6 @@
     <ClInclude Include="RandomGenerator.h" />
     <ClInclude Include="StrangeTree.h" />
     <ClInclude Include="Utilities.h" />
-    <ClInclude Include="Utilities\WinTiming.h" />
     <ClInclude Include="Componenets\Camera.h">
       <Filter>Components</Filter>
     </ClInclude>
@@ -65,6 +66,12 @@
     </ClInclude>
     <ClInclude Include="Game\Chunk.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\Debugging.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\WinTiming.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

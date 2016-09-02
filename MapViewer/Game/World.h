@@ -39,11 +39,13 @@ private:
 	void RequestChunks(std::vector<glm::vec2> &chunkIDs);
 	void RemoveChunks(std::vector<Chunk *> &chunks);
 	std::vector<Chunk*> GetLoadedChunks();
+
+	// Called by threading
+	void ClearAllDataOnExit();
 	
 	struct vec2_cmp {
 		inline bool operator()(const glm::vec2 &l, const glm::vec2 &r)
 		{
-
 			if (l.x < r.x)
 			{
 				return true;

@@ -26,21 +26,13 @@ void World::StartThreading()
 }
 void World::ExitThreading()
 {
-	
-
-	std::map<glm::vec2, Chunk*, vec2_cmp>::iterator it = m_worldChunks.begin();
-	while (it != m_worldChunks.end())
-	{
-		delete it->second;
-		it = m_worldChunks.erase(it);
-	}
-
-
+	using namespace std;
+	using namespace glm;
 
 	m_exitThread = true;
 	m_conVar.notify_all();
-
 	m_pThread->join();
+
 	delete m_pThread;
 }
 
@@ -97,7 +89,11 @@ void World::Threading()
 
 			// Exit the thread
 			if (m_exitThread)
+			{
+				ClearAllDataOnExit();
 				return;
+			}
+				
 
 			// In case spurious wakeup happens
 			if (m_loadingChunks.empty() == true)
@@ -152,7 +148,17 @@ void World::Threading()
 
 void World::Intilize()
 {
-	StartThreading(); m_needToSort = true; m_exitThread = false;
+	using namespace  glm;
+	vec3 cameraPos(0, 200, 0);
+	vec3 target(0, 100, -100);
+	vec3 up(0, 1, 0);
+
+	Rendering::Camera::SetLookAt(cameraPos, target, up);
+	Rendering::Camera::SetPerspective(70, 4.0f / 3.0f, 0.1f, 1000.0f);
+
+	StartThreading(); 
+	m_needToSort = true; 
+	m_exitThread = false;
 }
 void World::ShutDown()
 {
@@ -213,7 +219,6 @@ void World::Update(float delta)//TODO: delta time
 		if (sqrDis >= 15 * 15)
 		{
 			unloadList.push_back(it->second);
-			//delete it->second;
 			it = m_worldChunks.erase(it);
 		}
 		else
@@ -288,9 +293,27 @@ void World::Draw()
 	std::map<glm::vec2, Chunk*, vec2_cmp>::iterator it = m_worldChunks.begin();
 	while (it != m_worldChunks.end())
 	{
-		it->second->pMesh->Draw();
+		it->second->m_Mesh.Draw();
 
 		it++;
+	}
+}
+
+void World::ClearAllDataOnExit()
+{
+	std::map<glm::vec2, Chunk*, vec2_cmp>::iterator it = m_worldChunks.begin();
+	while (it != m_worldChunks.end())
+	{
+		delete it->second;
+		it = m_worldChunks.erase(it);
+	}
+	for (int i = 0; i < m_loadedChunks.size(); i++)
+	{
+		delete m_loadedChunks[i];
+	}
+	for (int i = 0; i < m_unloadedChunks.size(); i++)
+	{
+		delete m_unloadedChunks[i];
 	}
 }
 

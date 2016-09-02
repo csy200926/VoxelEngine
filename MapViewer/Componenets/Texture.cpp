@@ -10,6 +10,8 @@ namespace Rendering
 
 	Texture::~Texture()
 	{
+		glDeleteTextures(1, &m_textureID);
+		
 	}
 
 	bool Texture::LoadFromPath(const char *i_path)
@@ -53,8 +55,11 @@ namespace Rendering
 		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		//glGenerateMipmap(GL_TEXTURE_2D);//TODO: there is a bug if mipmap disabled!!!
+		//glGenerateMipmap(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, 0);
+
+		delete[]image_data;
+
 		return true;
 	}
 	bool Texture::ShowDown()
