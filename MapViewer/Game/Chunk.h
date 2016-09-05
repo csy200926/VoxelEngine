@@ -32,10 +32,20 @@ namespace Rendering
 }
 
 
+
 class Chunk
 {
+
 public:
 	
+	enum ChunkState
+	{
+		Loaded = 0,
+		GeneratingMesh,
+		AllSet,
+
+	};
+
 	Rendering::Mesh m_Mesh;
 
 	Tile **pTiles; //16 length
@@ -44,8 +54,8 @@ public:
 
 	glm::vec2 chunkID;
 
-	bool m_isActive;
-	//bool m_isAllNeighborSet;
+
+	ChunkState state;
 
 	Tile* GetTileByID(int ID)
 	{
@@ -59,8 +69,7 @@ public:
 
 	Chunk()
 	{
-		//m_isAllNeighborSet = false;
-		m_isActive = false;
+		state = Loaded;
 		pTiles = nullptr;
 	}
 
@@ -98,8 +107,7 @@ public:
 
 	// Is activated for rendering
 	// Only when all neighbors are generated can this chunk be loaded
-	bool IsActive(){ return m_isActive; };
-	void SetActive(bool value){ m_isActive = value; };
+
 
 	void GenerateMesh();
 };
