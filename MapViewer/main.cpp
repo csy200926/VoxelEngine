@@ -48,7 +48,7 @@ using namespace glm;
 
 #pragma region static variables
 GLFWwindow* window;
-unsigned int ScreenHeight = 768, ScreenWidth = 1024;
+unsigned int ScreenHeight = 600, ScreenWidth = 800;
 
 #pragma endregion
 

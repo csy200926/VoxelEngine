@@ -42,6 +42,9 @@ private:
 
 	// Called by threading
 	void ClearAllDataOnExit();
+
+	// Return: if any new mesh generated
+	bool TryActivateChunk(Chunk *);
 	
 	struct vec2_cmp {
 		inline bool operator()(const glm::vec2 &l, const glm::vec2 &r)
@@ -81,7 +84,7 @@ private:
 	std::thread *m_pThread;
 	static World *pInstance;
 
-
+	glm::vec2 neighborOffsets[8];
 
 	//[  1  1  1  1           1  1  1  1       1  1  1  1  1  1  1  1 ]
 	int GetBlockArrayIndex(const int biasX, const int y, const int biasZ)

@@ -35,10 +35,18 @@ namespace Rendering
 class Chunk
 {
 public:
+	
 	Rendering::Mesh m_Mesh;
+
 	Tile **pTiles; //16 length
 
+	Chunk **pNeighbors;// 8 length neighbors
+
 	glm::vec2 chunkID;
+
+	bool m_isActive;
+	//bool m_isAllNeighborSet;
+
 	Tile* GetTileByID(int ID)
 	{
 		if (ID < 16 && ID >= 0)
@@ -51,7 +59,9 @@ public:
 
 	Chunk()
 	{
-		
+		//m_isAllNeighborSet = false;
+		m_isActive = false;
+		pTiles = nullptr;
 	}
 
 	~Chunk()
@@ -62,6 +72,7 @@ public:
 		}
 
 		delete[] pTiles;
+		delete[] pNeighbors;
 	}
 
 	void Initilize(glm::vec2 &i_chunkID)
@@ -72,9 +83,23 @@ public:
 		{
 			pTiles[i] = new Tile();
 		}
+
+		pNeighbors = new Chunk*[8];
+		for (int i = 0; i < 8; i++)
+		{
+			pNeighbors[i] = nullptr;
+		}
 	}
 
-	void UpdateNeighborInfo();
+	void Draw()
+	{
+		m_Mesh.Draw();
+	}
+
+	// Is activated for rendering
+	// Only when all neighbors are generated can this chunk be loaded
+	bool IsActive(){ return m_isActive; };
+	void SetActive(bool value){ m_isActive = value; };
 
 	void GenerateMesh();
 };

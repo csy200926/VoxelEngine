@@ -22,9 +22,3 @@ void Chunk::GenerateMesh()
 
 	m_Mesh.LoadFromList(vertices, indices);
 }
-
-void Chunk::UpdateNeighborInfo()
-{
-
-}
-

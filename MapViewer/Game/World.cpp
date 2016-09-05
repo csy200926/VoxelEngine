@@ -159,6 +159,15 @@ void World::Intilize()
 	StartThreading(); 
 	m_needToSort = true; 
 	m_exitThread = false;
+
+	neighborOffsets[0] = vec2(-1,1);
+	neighborOffsets[1] = vec2(0,1);
+	neighborOffsets[2] = vec2(1,1);
+	neighborOffsets[3] = vec2(-1,0);
+	neighborOffsets[4] = vec2(1,0);
+	neighborOffsets[5] = vec2(-1,-1);
+	neighborOffsets[6] = vec2(0,-1);
+	neighborOffsets[7] = vec2(1,-1);
 }
 void World::ShutDown()
 {
@@ -205,27 +214,47 @@ void World::Update(float delta)//TODO: delta time
 	{
 		m_worldChunks.insert(pair<glm::vec2, Chunk*>(loadedChunks[i]->chunkID, loadedChunks[i]));
 		m_requestingChunks.erase(loadedChunks[i]->chunkID);
-		
-		loadedChunks[i]->GenerateMesh();//TODO: split into multiple frames
-		//printf("\nChunk %f %f generated ", loadedChunks[i]->chunkID.x, loadedChunks[i]->chunkID.y);
 	}
 
-	vector<Chunk*> unloadList;
-	std::map<glm::vec2, Chunk*, vec2_cmp>::iterator it = m_worldChunks.begin();
-	while (it != m_worldChunks.end())
-	{
-		vec2 diff = camChunkID - it->first;
-		float sqrDis = dot(diff, diff);
-		if (sqrDis >= 15 * 15)
+	// Try to activate all potential chunks
+	int maxCountPerFrame = 2;
+	{	
+		std::map<glm::vec2, Chunk*, vec2_cmp>::iterator it = m_worldChunks.begin();
+		while (it != m_worldChunks.end())
 		{
-			unloadList.push_back(it->second);
-			it = m_worldChunks.erase(it);
-		}
-		else
+			if (maxCountPerFrame > 0)
+			{
+				if (TryActivateChunk(it->second) == true)
+					maxCountPerFrame--;
+			}else
+				break;
+				
 			it++;
+		}
 	}
 
-	RemoveChunks(unloadList);
+
+	return;
+
+	{
+		vector<Chunk*> unloadList;
+		std::map<glm::vec2, Chunk*, vec2_cmp>::iterator it = m_worldChunks.begin();
+		while (it != m_worldChunks.end())
+		{
+			vec2 diff = camChunkID - it->first;
+			float sqrDis = dot(diff, diff);
+			if (sqrDis >= 15 * 15)
+			{
+				unloadList.push_back(it->second);
+				it = m_worldChunks.erase(it);
+			}
+			else
+				it++;
+		}
+
+		RemoveChunks(unloadList);
+	}
+
 }
 
 void World::RequestChunks(std::vector<glm::vec2> &chunkIDs)
@@ -293,7 +322,10 @@ void World::Draw()
 	std::map<glm::vec2, Chunk*, vec2_cmp>::iterator it = m_worldChunks.begin();
 	while (it != m_worldChunks.end())
 	{
-		it->second->m_Mesh.Draw();
+		if (it->second->IsActive())
+		{
+			it->second->Draw();
+		}
 
 		it++;
 	}
@@ -315,5 +347,44 @@ void World::ClearAllDataOnExit()
 	{
 		delete m_unloadedChunks[i];
 	}
+}
+//SDL?
+bool World::TryActivateChunk(Chunk *pChunk)
+{
+	if (pChunk->IsActive())
+	{
+		return false;
+	}
+
+	using namespace glm;
+	vec2 centerChunkID;
+	bool isAllSet = true;
+	for (int i = 0; i < 8; i++)
+	{
+		if (pChunk->pNeighbors[i] != nullptr)
+			continue;
+
+		vec2 chunkID = centerChunkID + neighborOffsets[i];
+		std::map<glm::vec2, Chunk*, vec2_cmp>::iterator it = m_worldChunks.find(chunkID);
+		if (it != m_worldChunks.end())
+		{
+			pChunk->pNeighbors[i] = it->second;
+		}
+		else
+		{
+			isAllSet = false;
+		}
+	}
+
+	
+	if (isAllSet)
+	{
+		pChunk->GenerateMesh();
+		pChunk->SetActive(isAllSet);
+		return true;
+	}
+	else
+		return false;
+
 }
 
