@@ -20,6 +20,8 @@ World* World::GetInstance()
 		return pInstance;
 	}
 }
+
+#pragma region Thread
 void World::StartThreading()
 {
 	m_pThread = new std::thread(&World::Threading, this);
@@ -80,6 +82,7 @@ void World::Threading()
 			{
 				for (int i = 0; i < m_unloadedChunks.size(); i++)
 				{
+					m_unloadedChunks[i]->ClearRefTiNeighbors();
 					delete m_unloadedChunks[i];
 				}
 				m_unloadedChunks.clear();
@@ -145,7 +148,7 @@ void World::Threading()
 
 
 }
-
+#pragma endregion
 void World::Intilize()
 {
 	using namespace  glm;
@@ -160,23 +163,7 @@ void World::Intilize()
 	m_needToSort = true; 
 	m_exitThread = false;
 
-	neighborOffsets[0] = vec2(-1,1);
-	neighborOffsets[1] = vec2(0,1);
-	neighborOffsets[2] = vec2(1,1);
-	neighborOffsets[3] = vec2(-1,0);
-	neighborOffsets[4] = vec2(1,0);
-	neighborOffsets[5] = vec2(-1,-1);
-	neighborOffsets[6] = vec2(0,-1);
-	neighborOffsets[7] = vec2(1,-1);
 
-	neighborIndexMutual[0] = 7;
-	neighborIndexMutual[1] = 6;
-	neighborIndexMutual[2] = 5;
-	neighborIndexMutual[3] = 4;
-	neighborIndexMutual[4] = 3;
-	neighborIndexMutual[5] = 2;
-	neighborIndexMutual[6] = 1;
-	neighborIndexMutual[7] = 0;
 }
 void World::ShutDown()
 {
@@ -238,7 +225,7 @@ void World::Update(float delta)//TODO: delta time
 	}
 
 
-	return;
+
 
 	{
 		vector<Chunk*> unloadList;
@@ -260,7 +247,7 @@ void World::Update(float delta)//TODO: delta time
 	}
 
 }
-
+#pragma region communicate with branch thread
 void World::RequestChunks(std::vector<glm::vec2> &chunkIDs)
 {
 	if (chunkIDs.size() < 0)
@@ -309,7 +296,7 @@ std::vector<Chunk*> World::GetLoadedChunks()
 	m_loadedChunks.clear();
 	return result;
 }
-
+#pragma endregion
 World::World()
 {
 	pInstance = this;
@@ -350,7 +337,10 @@ void World::ClearAllDataOnExit()
 		delete m_unloadedChunks[i];
 	}
 }
-//SDL?
+
+
+// SDL?
+// Generation proceeds only when neighbor chunks ready
 bool World::TryActivateChunk(Chunk *pChunk)
 {
 	if (pChunk->state != Chunk::Loaded)
@@ -366,13 +356,13 @@ bool World::TryActivateChunk(Chunk *pChunk)
 		if (pChunk->pNeighbors[i] != nullptr)
 			continue;
 
-		vec2 chunkID = centerChunkID + neighborOffsets[i];
+		vec2 chunkID = centerChunkID + Chunk::neighborOffsets[i];
 		std::map<glm::vec2, Chunk*, vec2_cmp>::iterator it = m_worldChunks.find(chunkID);
 		if (it != m_worldChunks.end())
 		{
 			// TODO: ref mutually
 			pChunk->pNeighbors[i] = it->second;
-			it->second->pNeighbors[neighborIndexMutual[i]] = pChunk;
+			it->second->pNeighbors[Chunk::neighborIndexMutual[i]] = pChunk;
 		}
 		else
 		{
@@ -385,8 +375,6 @@ bool World::TryActivateChunk(Chunk *pChunk)
 	{
 		m_meshGeneratingChunks.push_back(centerChunkID);
 		pChunk->state = Chunk::GeneratingMesh;
-		//pChunk->GenerateMesh();
-		//pChunk->SetActive(isAllSet);
 		return true;
 	}
 	else
@@ -394,6 +382,7 @@ bool World::TryActivateChunk(Chunk *pChunk)
 
 }
 
+// Generate meshes, "maxCountPerFrame" number meshes per frame
 void World::GenerateChunkMeshes()
 {
 	int maxCountPerFrame = 2;

@@ -86,14 +86,6 @@ private:
 	std::thread *m_pThread;
 	static World *pInstance;
 
-	/*
-	  __________
-	|_0_|_1_|_2_|
-	|_3_|_C_|_4_|
-	|_5_|_6_|_7_|
-	*/
-	glm::vec2 neighborOffsets[8];
-	int neighborIndexMutual[8];
 
 	//[  1  1  1  1           1  1  1  1       1  1  1  1  1  1  1  1 ]
 	int GetBlockArrayIndex(const int biasX, const int y, const int biasZ)

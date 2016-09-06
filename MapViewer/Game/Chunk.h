@@ -37,6 +37,15 @@ class Chunk
 {
 
 public:
+
+	/*
+	__________
+	|_0_|_1_|_2_|
+	|_3_|_C_|_4_|
+	|_5_|_6_|_7_|
+	*/
+	static glm::vec2 neighborOffsets[8];
+	static int neighborIndexMutual[8];
 	
 	enum ChunkState
 	{
@@ -110,4 +119,24 @@ public:
 
 
 	void GenerateMesh();
+
+	void ClearRefTiNeighbors()
+	{
+		if (pNeighbors != nullptr)
+		{
+			for (int i = 0; i < 8; i++)
+			{
+				Chunk *pNeighbor = pNeighbors[i];
+				if (pNeighbor != nullptr)
+				{
+					pNeighbor->pNeighbors[neighborIndexMutual[i]] = nullptr;
+
+				}
+			}
+
+
+
+		}
+
+	};
 };
