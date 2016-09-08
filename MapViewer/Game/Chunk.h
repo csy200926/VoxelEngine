@@ -8,7 +8,7 @@ class Tile
 public:
 	Tile *pNeighbors;
 	int *pData;//4096 length
-
+	glm::vec3 tileID;
 	Tile()
 	{
 		pNeighbors = nullptr;
@@ -100,6 +100,7 @@ public:
 		for (int i = 0; i < 16; i ++)
 		{
 			pTiles[i] = new Tile();
+			pTiles[i]->tileID = glm::vec3(chunkID.x,i,chunkID.y);
 		}
 
 		pNeighbors = new Chunk*[8];

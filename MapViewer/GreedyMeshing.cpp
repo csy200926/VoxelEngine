@@ -1,6 +1,30 @@
 #include "GreedyMeshing.h"
+
 namespace Rendering
 {
+	/*
+				Z = 0,
+				NZ = 1,
+				NY = 2,
+				Y = 3,
+				NX = 4,
+				X = 5
+
+				y+
+				|   /z-
+				|  /
+				| /
+				|/______ x+
+
+	*/
+	glm::vec3 GreedyMesshing::neighborIndex6Side[6] = { 
+		glm::vec3(0, 0, -1) ,//TODO: why doesn't need to adjust???
+		glm::vec3(0, 0, 1) ,//
+		glm::vec3(0, -1, 0) ,
+		glm::vec3(0, 1, 0) ,
+		glm::vec3(-1, 0, 0) ,
+		glm::vec3(1, 0, 0) };
+
 	GreedyMesshing::GreedyMesshing()
 	{
 		using namespace glm;
@@ -18,19 +42,30 @@ namespace Rendering
 	{
 	}
 
-	void GreedyMesshing::GenerateMesh(int *i_pTileData
+	void GreedyMesshing::GenerateMesh(Tile* i_pTile
 		, std::vector<Vertex> &io_vertices
 		, std::vector<unsigned int>&io_indices
 		, glm::vec3& i_worldPos)
 	{
+		if (i_pTile == nullptr)
+		{
+			return;
+		}
+
+		World *pWorld = World::GetInstance();
 		int coord0 = 0, coord1 = 1, coord2 = 2;
 		for (int i = 0; i < 6; i++)
 		{
-
-
+			int *pNeighborDate = nullptr;
+			{
+				Tile* pTile = pWorld->GetTileByTileID(i_pTile->tileID + neighborIndex6Side[i]);
+				if (pTile != nullptr )
+					pNeighborDate = pTile->pData;
+			}
+			
 			QuadDir dir = (QuadDir)i;//0 1 2
 
-			GenerateQuads(coord0, coord1, coord2, dir, i % 2 == 0, i_pTileData, i_worldPos, io_vertices,io_indices);
+			GenerateQuads(coord0, coord1, coord2, dir, i % 2 == 0, i_pTile->pData, pNeighborDate, i_worldPos, io_vertices, io_indices);
 
 			if (i % 2 != 0)
 			{
@@ -72,6 +107,7 @@ namespace Rendering
 		QuadDir dir,
 		bool isBackFace,
 		int *i_pTileData,
+		int *i_pTileDataNeighbor,
 		glm::vec3& worldPos,
 		std::vector<Vertex> &io_vertices,
 		std::vector<unsigned int>&io_indices)
@@ -85,11 +121,34 @@ namespace Rendering
 			offset[coordZ] = 0.5f;
 		vec3 iterateOffset = vec3(offset[0], offset[1], offset[2]) + worldPos;
 
-
-		for (int i = 0; i < 16 * 16; i++)
+		//x * 16 * 16 + y * 16 + z
 		{
-			lastMask[i] = 0;
+			if (i_pTileDataNeighbor != nullptr)
+			{
+				int coord_local[3] = {0,0,0};
+				
+				if (isBackFace == true)
+					coord_local[coordZ] = 15;
+				else
+					coord_local[coordZ] = 0;
+
+				for (coord_local[coordX] = 0; coord_local[coordX] < 16; coord_local[coordX]++)
+					for (coord_local[coordY] = 0; coord_local[coordY] < 16; coord_local[coordY]++)
+					{
+						lastMask[coord_local[coordX] * 16 + coord_local[coordY]] = i_pTileDataNeighbor[coord_local[0] * 16 * 16 + coord_local[1] * 16 + coord_local[2]];
+					}
+
+			}
+			else
+			{
+				for (int i = 0; i < 16 * 16; i++)
+				{
+					lastMask[i] = 0;
+				}
+			}
+	
 		}
+
 
 		int sliceCoord = 0;
 		while (sliceCoord < 16)

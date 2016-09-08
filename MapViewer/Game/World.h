@@ -8,12 +8,14 @@
 #include <map>
 #include <set>
 #include <list>
+
+#include "Chunk.h"
+
 namespace std
 {
 	class thread;
 }
 
-class Chunk;
 class World
 {
 public:
@@ -33,6 +35,19 @@ public:
 	World();
 	~World();
 
+	Tile* GetTileByTileID(glm::vec3 &i_tileID)
+	{
+		glm::vec2 chunkID(i_tileID.x,i_tileID.z);
+		std::map<glm::vec2, Chunk*, vec2_cmp>::iterator it = m_worldChunks.find(chunkID);
+		if (it != m_worldChunks.end())
+		{
+			Chunk *pChunk = it->second;
+			return pChunk->GetTileByID(i_tileID.y);
+
+		}
+		return nullptr;
+
+	}
 	
 private:
 	void Threading();

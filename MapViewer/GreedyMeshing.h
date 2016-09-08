@@ -1,8 +1,9 @@
 #pragma once
 #include <vector>
 #include <glm.hpp>
-#include "Componenets/Mesh.h"
 
+#include "Componenets/Mesh.h"
+#include "Game/World.h"
 namespace Rendering
 {
 
@@ -24,7 +25,7 @@ namespace Rendering
 		~GreedyMesshing();
 
 		// Meshing as a tile(16 * 16 * 16)
-		void GenerateMesh(int *i_pTileData
+		void GenerateMesh(Tile* i_pTile
 			,std::vector<Vertex> &io_vertices
 			,std::vector<unsigned int>&io_indices
 			,glm::vec3& worldPos);
@@ -43,6 +44,8 @@ namespace Rendering
 		int thisMask[16 * 16];
 
 		glm::vec3 normalDirs[6];
+		
+		static glm::vec3 neighborIndex6Side[6];
 
 		bool CheckCubeSur(int thisBlockID, int &thisMask, int lastMask);
 
@@ -53,6 +56,7 @@ namespace Rendering
 			QuadDir dir, 
 			bool isBackFace, 
 			int *i_pTileData,
+			int *i_pTileDataNeighbor,
 			glm::vec3& worldPos,
 			std::vector<Vertex> &io_vertices,
 			std::vector<unsigned int>&io_indices);

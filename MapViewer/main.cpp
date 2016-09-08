@@ -408,7 +408,7 @@ int main() {
 
 			world.Draw();
 
-			if (s_wireframeMode == false)
+			if (s_wireframeMode == true)
 			{
 				glPolygonMode(GL_FRONT, GL_LINE);
 			}

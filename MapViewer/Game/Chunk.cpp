@@ -21,7 +21,7 @@ void Chunk::GenerateMesh()
 
 	for (int i = 0; i < 16; i++)
 	{
-		greedyMeshing.GenerateMesh(pTiles[i]->pData, vertices, indices, glm::vec3(chunkID.x * 16, i * 16, chunkID.y * 16));
+		greedyMeshing.GenerateMesh(pTiles[i], vertices, indices, glm::vec3(chunkID.x * 16, i * 16, chunkID.y * 16));
 	}
 
 
