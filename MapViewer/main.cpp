@@ -52,7 +52,7 @@ using namespace glm;
 
 #pragma region static variables
 GLFWwindow* window;
-unsigned int ScreenHeight = 768*1.5f, ScreenWidth = 1024*1.5f;
+unsigned int ScreenHeight = 768*1.8f, ScreenWidth = 1024*1.8f;
 bool isGameRunning = true;
 #pragma endregion
 
@@ -319,6 +319,9 @@ int main(int argc, char** argv) {
 		material.Init("Shaders/vert_regular.shader", "Shaders/frag_atlas.shader");
 		material.SetTexture(&texture);
 
+		Rendering::Material material_linemode;
+		material_linemode.Init("Shaders/vert_linemode.shader", "Shaders/frag_linemode.shader");
+
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
@@ -366,21 +369,28 @@ int main(int argc, char** argv) {
 				}
 			}
 		
-			material.Activate();
 
 			// Normal GL draw methods
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			world.Draw();
 
 			if (s_wireframeMode == true)
 			{
+				glEnable(GL_POLYGON_OFFSET_LINE);
+				glPolygonOffset(-1, -1);
+				material_linemode.Activate();
 				glPolygonMode(GL_FRONT, GL_LINE);
-			}
-			else
-			{
+				world.Draw();
 				glPolygonMode(GL_FRONT, GL_FILL);
+				glDisable(GL_POLYGON_OFFSET_LINE);
+				
 			}
+
+			material.Activate();
+			
+
+
+			world.Draw();
 
 			glEnable(GL_PROGRAM_POINT_SIZE);
 

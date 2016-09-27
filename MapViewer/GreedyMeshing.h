@@ -81,8 +81,8 @@ namespace Rendering
 			int coordZ, 
 			QuadDir dir, 
 			bool isBackFace, 
-			int *i_pTileData,
-			int *i_pTileDataNeighbor,
+			Tile *i_pTile,
+			int *i_pTileDataNeighbor,// this neighbor used for mesh merging only
 			glm::vec3& worldPos,
 			std::vector<Vertex> &io_vertices,
 			std::vector<unsigned int>&io_indices);
@@ -91,19 +91,71 @@ namespace Rendering
 		{
 			if (side1 != 0 && side2 != 0)
 			{
-				return 0;
+				return 3;
 			}
-			return 3 - (side1 + side2 + corner);
+			return (side1 + side2 + corner);
 		}
 
-		int GetTileDataByIndex(int x_local, int y_local, int z_local, int*data)
+		int GetTileDataByIndex(int x_local, int y_local, int z_local, Tile *i_pTile)
 		{
-			if (x_local < 0 || x_local > 15
-				|| y_local < 0 || y_local > 15
-				|| z_local < 0 || z_local > 15)
-				return 0;
+			using namespace glm;
+			vec3 offset(0,0,0);
 
-			return data[x_local * 16 * 16 + y_local * 16 + z_local];
+			if (x_local < 0)
+			{
+				offset.x--;
+				x_local = 15;
+			}
+			else if (x_local > 15)
+			{
+				offset.x++;
+				x_local = 0;
+			}
+				
+
+			if (y_local < 0)
+			{
+				offset.y--;
+				y_local = 15;
+			}
+				
+			if (y_local > 15)
+			{
+				offset.y++;
+				y_local = 0;
+			}
+				
+
+			if (z_local < 0)
+			{
+				offset.z--;
+				z_local = 15;
+			}
+				
+			if (z_local > 15)
+			{
+				offset.z++;
+				z_local = 0;
+			}
+				
+
+			if (offset.x == 0 && offset.y == 0 && offset.z == 0)
+			{
+				return i_pTile->pData[x_local * 16 * 16 + y_local * 16 + z_local];
+			}
+			else
+			{
+				int index = NeightborOffsetIndexMap[offset];
+
+				return i_pTile->pNeighbors[index]->pData[x_local * 16 * 16 + y_local * 16 + z_local];
+			}
+
+			//if (x_local < 0 || x_local > 15
+			//	|| y_local < 0 || y_local > 15
+			//	|| z_local < 0 || z_local > 15)
+			//	return 0;
+
+	
 		}
 	};
 

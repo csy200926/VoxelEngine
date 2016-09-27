@@ -177,7 +177,7 @@ namespace Rendering
 			
 			QuadDir dir = (QuadDir)i;//0 1 2
 
-			GenerateQuads(coord0, coord1, coord2, dir, i % 2 == 0, i_pTile->pData, pNeighborDate, i_worldPos, io_vertices, io_indices);
+			GenerateQuads(coord0, coord1, coord2, dir, i % 2 == 0, i_pTile, pNeighborDate, i_worldPos, io_vertices, io_indices);
 
 			if (i % 2 != 0)
 			{
@@ -218,8 +218,8 @@ namespace Rendering
 		int coordZ,
 		QuadDir dir,
 		bool isBackFace,
-		int *i_pTileData,
-		int *i_pTileDataNeighbor,// used for mesh merging only
+		Tile *i_pTile,
+		int *i_pTileDataNeighbor,
 		glm::vec3& worldPos,
 		std::vector<Vertex> &io_vertices,
 		std::vector<unsigned int>&io_indices)
@@ -227,6 +227,7 @@ namespace Rendering
 		using namespace glm;
 		int dir_int = (int)dir;
 		int coord[3];// = new int[3];
+		int *i_pTileData = i_pTile->pData; 
 
 		float offset[] = {-0.5f, -0.5f, -0.5f};
 		if (isBackFace == false)
@@ -321,7 +322,7 @@ namespace Rendering
 												localCoor[0] + (int)offset_AO.x,
 												localCoor[1] + (int)offset_AO.y,
 												localCoor[2] + (int)offset_AO.z,
-												i_pTileData);
+												i_pTile);
 
 											neighborsInfo[cornerOffsetCounter] = data_local_AO == 0 ? 0 : 1;
 
@@ -391,7 +392,7 @@ namespace Rendering
 														localCoor[0] + (int)offset_AO.x,
 														localCoor[1] + (int)offset_AO.y,
 														localCoor[2] + (int)offset_AO.z,
-														i_pTileData);
+														i_pTile);
 
 													neighborsInfo[cornerOffsetCounter] = data_local_AO == 0 ? 0 : 1;
 
@@ -536,9 +537,8 @@ namespace Rendering
 			{
 				unsigned char cornerAO = (unsigned char)(AOValue >> (8 * AOCounter));
 				AOValues[AOCounter] = cornerAO;
-				float light = cornerAO * 0.6f;
 				Vertex &vert = io_vertices[vertSize - 4 + AOCounter];
-				vert.color[3] = light;
+				vert.color[3] = cornerAO;
 				AOCounter++;
 			}
 			if (AOValues[1] + AOValues[3] < AOValues[0] + AOValues[2])
@@ -604,9 +604,9 @@ namespace Rendering
 			{
 				unsigned char cornerAO = (unsigned char)(AOValue >> (8 * AOCounter));
 				AOValues[AOCounter] = cornerAO;
-				float light = cornerAO * 0.6f;
+				
 				Vertex &vert = io_vertices[vertSize - 4 + AOCounter];
-				vert.color[3] = light;
+				vert.color[3] = cornerAO;
 				AOCounter++;
 			}
 			if (AOValues[1] + AOValues[3] < AOValues[0] + AOValues[2])
@@ -667,9 +667,9 @@ namespace Rendering
 			{
 				unsigned char cornerAO = (unsigned char)(AOValue >> (8 * AOCounter));
 				AOValues[AOCounter] = cornerAO;
-				float light = cornerAO * 0.6f;
+				
 				Vertex &vert = io_vertices[vertSize - 4 + AOCounter];
-				vert.color[3] = light;
+				vert.color[3] = cornerAO;
 				AOCounter++;
 			}
 			if (AOValues[1] + AOValues[3] < AOValues[0] + AOValues[2])
@@ -733,9 +733,9 @@ namespace Rendering
 			{
 				unsigned char cornerAO = (unsigned char)(AOValue >> (8 * AOCounter));
 				AOValues[AOCounter] = cornerAO;
-				float light = cornerAO * 0.6f;
+				
 				Vertex &vert = io_vertices[vertSize - 4 + AOCounter];
-				vert.color[3] = light;
+				vert.color[3] = cornerAO;
 				AOCounter++;
 			}
 			if (AOValues[1] + AOValues[3] < AOValues[0] + AOValues[2])
@@ -801,9 +801,9 @@ namespace Rendering
 			{
 				unsigned char cornerAO = (unsigned char)(AOValue >> (8 * AOCounter));
 				AOValues[AOCounter] = cornerAO;
-				float light = cornerAO * 0.6f;
+				
 				Vertex &vert = io_vertices[vertSize - 4 + AOCounter];
-				vert.color[3] = light;
+				vert.color[3] = cornerAO;
 				AOCounter++;
 			}
 			if (AOValues[1] + AOValues[3] < AOValues[0] + AOValues[2])
@@ -865,9 +865,9 @@ namespace Rendering
 			{
 				unsigned char cornerAO = (unsigned char)(AOValue >> (8 * AOCounter));
 				AOValues[AOCounter] = cornerAO;
-				float light = cornerAO * 0.6f;
+				
 				Vertex &vert = io_vertices[vertSize - 4 + AOCounter];
-				vert.color[3] = light;
+				vert.color[3] = cornerAO;
 				AOCounter++;
 			}
 			if (AOValues[1] + AOValues[3] < AOValues[0] + AOValues[2])

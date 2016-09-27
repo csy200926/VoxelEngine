@@ -131,8 +131,10 @@
   <ItemGroup>
     <None Include="Shaders\frag.shader" />
     <None Include="Shaders\frag_atlas.shader" />
+    <None Include="Shaders\frag_linemode.shader" />
     <None Include="Shaders\vert.shader" />
     <None Include="Shaders\vert_regular.shader" />
+    <None Include="Shaders\vert_linemode.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
