@@ -25,6 +25,110 @@ namespace Rendering
 		glm::vec3(-1, 0, 0) ,
 		glm::vec3(1, 0, 0) };
 
+	glm::vec3 GreedyMesshing::Offsets_AO[72] = {
+		// NZ face
+		glm::vec3(0, -1, -1),
+		glm::vec3(-1, -1, -1),
+		glm::vec3(-1, 0, -1),
+
+		glm::vec3(-1, 0, -1),
+		glm::vec3(-1, 1, -1),
+		glm::vec3(0, 1, -1),
+
+		glm::vec3(0, 1, -1),
+		glm::vec3(1, 1, -1),
+		glm::vec3(1, 0, -1),
+
+		glm::vec3(1, 0, -1),
+		glm::vec3(1, -1, -1),
+		glm::vec3(0, -1, -1),
+
+		// Z face
+		glm::vec3(0, -1, 1),
+		glm::vec3(-1, -1, 1),
+		glm::vec3(-1, 0, 1),
+
+		glm::vec3(-1, 0, 1),
+		glm::vec3(-1, 1, 1),
+		glm::vec3(0, 1, 1),
+
+		glm::vec3(0, 1, 1),
+		glm::vec3(1, 1, 1),
+		glm::vec3(1, 0, 1),
+
+		glm::vec3(1, 0, 1),
+		glm::vec3(1, -1, 1),
+		glm::vec3(0, -1, 1),
+
+		// NY face
+		glm::vec3(0, -1, -1),
+		glm::vec3(-1, -1, -1),
+		glm::vec3(-1, -1, 0),
+
+		glm::vec3(-1, -1, 0),
+		glm::vec3(-1, -1, 1),
+		glm::vec3(0, -1, 1),
+
+		glm::vec3(0, -1, 1),
+		glm::vec3(1, -1, 1),
+		glm::vec3(1, -1, 0),
+
+		glm::vec3(1, -1, 0),
+		glm::vec3(1, -1, -1),
+		glm::vec3(0, -1, -1),
+
+		// Y face
+		glm::vec3(0, 1, -1),
+		glm::vec3(-1, 1, -1),
+		glm::vec3(-1, 1, 0),
+
+		glm::vec3(-1, 1, 0),
+		glm::vec3(-1, 1, 1),
+		glm::vec3(0, 1, 1),
+
+		glm::vec3(0, 1, 1),
+		glm::vec3(1, 1, 1),
+		glm::vec3(1, 1, 0),
+
+		glm::vec3(1, 1, 0),
+		glm::vec3(1, 1, -1),
+		glm::vec3(0, 1, -1),
+
+		// NX face
+		glm::vec3(-1, -1, 0),
+		glm::vec3(-1, -1, -1),
+		glm::vec3(-1, 0, -1),
+
+		glm::vec3(-1, 0, -1),
+		glm::vec3(-1, 1, -1),
+		glm::vec3(-1, 1, 0),
+
+		glm::vec3(-1, 1, 0),
+		glm::vec3(-1, 1, 1),
+		glm::vec3(-1, 0, 1),
+
+		glm::vec3(-1, 0, 1),
+		glm::vec3(-1, -1, 1),
+		glm::vec3(-1, -1, 0),
+
+		// X face
+		glm::vec3(1, -1, 0),
+		glm::vec3(1, -1, -1),
+		glm::vec3(1, 0, -1),
+
+		glm::vec3(1, 0, -1),
+		glm::vec3(1, 1, -1),
+		glm::vec3(1, 1, 0),
+
+		glm::vec3(1, 1, 0),
+		glm::vec3(1, 1, 1),
+		glm::vec3(1, 0, 1),
+
+		glm::vec3(1, 0, 1),
+		glm::vec3(1, -1, 1),
+		glm::vec3(1, -1, 0),
+	};
+
 	GreedyMesshing::GreedyMesshing()
 	{
 		using namespace glm;
@@ -35,6 +139,10 @@ namespace Rendering
 		normalDirs[4] = vec3(0, 0,-1);
 		normalDirs[5] = vec3(0, 0, 1);
 
+		for (int i = 0; i < 26; i++)
+		{
+			NeightborOffsetIndexMap.insert(std::pair<vec3, int>(Tile::neighborOffsets_26[i], i));
+		}
 	}
 
 
@@ -58,9 +166,13 @@ namespace Rendering
 		{
 			int *pNeighborDate = nullptr;
 			{
-				Tile* pTile = pWorld->GetTileByTileID(i_pTile->tileID + neighborIndex6Side[i]);
-				if (pTile != nullptr )
-					pNeighborDate = pTile->pData;
+
+				int index = NeightborOffsetIndexMap[neighborIndex6Side[i]];
+				if (i_pTile->pNeighbors[index] != nullptr)
+				{
+					pNeighborDate = i_pTile->pNeighbors[index]->pData;//pTile->pData;
+				}
+				
 			}
 			
 			QuadDir dir = (QuadDir)i;//0 1 2
@@ -107,13 +219,13 @@ namespace Rendering
 		QuadDir dir,
 		bool isBackFace,
 		int *i_pTileData,
-		int *i_pTileDataNeighbor,
+		int *i_pTileDataNeighbor,// used for mesh merging only
 		glm::vec3& worldPos,
 		std::vector<Vertex> &io_vertices,
 		std::vector<unsigned int>&io_indices)
 	{
 		using namespace glm;
-
+		int dir_int = (int)dir;
 		int coord[3];// = new int[3];
 
 		float offset[] = {-0.5f, -0.5f, -0.5f};
@@ -163,6 +275,8 @@ namespace Rendering
 				thisMask[i] = 0;
 			}
 
+			int AOValue = 0, lastAOValue = 0;
+
 			for (coord[coordX] = 0; coord[coordX] < 16; coord[coordX]++)
 				for (coord[coordY] = 0; coord[coordY] < 16; coord[coordY]++)
 				{
@@ -176,11 +290,59 @@ namespace Rendering
 						{
 
 							int localCoor[3] = { coord[0], coord[1], coord[2] };
-
+							
+							AOValue = 0;
+							lastAOValue = INT_MAX;
 							for (localCoor[coordY] = startPosArray[coordY]; localCoor[coordY] < 16; localCoor[coordY]++)
 							{
 								int index_local = localCoor[0] * 16 * 16 + localCoor[1] * 16 + localCoor[2];
 								int data_local = i_pTileData[index_local];
+								
+								// Calculate AO
+								if (data_local != 0)
+								{
+									AOValue = 0;
+									for (int cornerIndex = 0; cornerIndex < 4; cornerIndex++)
+									{
+
+										int neighborsInfo[] = { 0, 0, 0 };
+										int cornerOffsetCounter = 0;
+										while (cornerOffsetCounter < 3)
+										{
+											int offsetIndex = dir_int * 12 + cornerIndex * 3 + cornerOffsetCounter;
+											vec3 offset_AO = Offsets_AO[offsetIndex];
+
+											int index_local_AO =
+												(localCoor[0] + (int)offset_AO.x) * 16 * 16 +
+												(localCoor[1] + (int)offset_AO.y) * 16 +
+												(localCoor[2] + (int)offset_AO.z);
+
+											int data_local_AO = GetTileDataByIndex(
+												localCoor[0] + (int)offset_AO.x,
+												localCoor[1] + (int)offset_AO.y,
+												localCoor[2] + (int)offset_AO.z,
+												i_pTileData);
+
+											neighborsInfo[cornerOffsetCounter] = data_local_AO == 0 ? 0 : 1;
+
+											cornerOffsetCounter++;
+										}
+										int cornerAO = AOLevel(neighborsInfo[0], neighborsInfo[2], neighborsInfo[1]);
+										AOValue |= cornerAO << (8 * cornerIndex);
+									}
+								}
+								else
+									AOValue = INT_MAX;
+
+								if (height != 0
+									&& AOValue != lastAOValue)
+								{
+									AOValue = lastAOValue;
+									break;
+								}
+								else
+									lastAOValue = AOValue;
+								
 								if (data_local == data&&CheckCubeSur(data_local, thisMask[localCoor[coordX] * 16 + localCoor[coordY]], lastMask[localCoor[coordX] * 16 + localCoor[coordY]]))
 								{
 									height++;
@@ -195,6 +357,8 @@ namespace Rendering
 						{
 							if (height != 0)
 							{
+								AOValue = 0;
+								lastAOValue = INT_MAX;
 								int localCoor[3] = { coord[0], coord[1], coord[2] };
 								for (localCoor[coordX] = startPosArray[coordX]; localCoor[coordX] < 16; localCoor[coordX]++)
 								{
@@ -203,6 +367,49 @@ namespace Rendering
 									{
 										int index_local = localCoor[0] * 16 * 16 + localCoor[1] * 16 + localCoor[2];
 										int data_local = i_pTileData[index_local];
+
+										// Calculate AO
+										if (data_local != 0)
+										{
+											AOValue = 0;
+											for (int cornerIndex = 0; cornerIndex < 4; cornerIndex++)
+											{
+
+												int neighborsInfo[] = { 0, 0, 0 };
+												int cornerOffsetCounter = 0;
+												while (cornerOffsetCounter < 3)
+												{
+													int offsetIndex = dir_int * 12 + cornerIndex * 3 + cornerOffsetCounter;
+													vec3 offset_AO = Offsets_AO[offsetIndex];
+
+													int index_local_AO =
+														(localCoor[0] + (int)offset_AO.x) * 16 * 16 +
+														(localCoor[1] + (int)offset_AO.y) * 16 +
+														(localCoor[2] + (int)offset_AO.z);
+
+													int data_local_AO = GetTileDataByIndex(
+														localCoor[0] + (int)offset_AO.x,
+														localCoor[1] + (int)offset_AO.y,
+														localCoor[2] + (int)offset_AO.z,
+														i_pTileData);
+
+													neighborsInfo[cornerOffsetCounter] = data_local_AO == 0 ? 0 : 1;
+
+													cornerOffsetCounter++;
+												}
+												int cornerAO = AOLevel(neighborsInfo[0], neighborsInfo[2], neighborsInfo[1]);
+												AOValue |= cornerAO << (8 * cornerIndex);
+											}
+										}
+										else
+											AOValue = INT_MAX;
+
+										if (width != 0 && AOValue != lastAOValue)
+										{
+											stopSign = true;
+										}
+										else
+											lastAOValue = AOValue;
 
 										if (data_local != data || !CheckCubeSur(data_local, thisMask[localCoor[coordX] * 16 + localCoor[coordY]], lastMask[localCoor[coordX] * 16 + localCoor[coordY]]))
 										{
@@ -226,7 +433,7 @@ namespace Rendering
 							vec3 startPos(coord[0], coord[1], coord[2]);
 							vec3 min = startPos;
 							vec3 max = startPos + vec3(quadWH[0], quadWH[1], quadWH[2]);
-							GenerateAlignedQuad(min + iterateOffset, max + iterateOffset,width,height,data ,dir, io_vertices,io_indices);
+							GenerateAlignedQuad(min + iterateOffset, max + iterateOffset, width, height, data, dir, io_vertices, io_indices, lastAOValue);
 
 							{
 								int minArray[3] = { (int)min.x, (int)min.y, (int)min.z };
@@ -273,17 +480,18 @@ namespace Rendering
 			, int texID
 			, QuadDir i_direction
 			, std::vector<Vertex> &io_vertices
-			, std::vector<unsigned int>&io_indices)
+			, std::vector<unsigned int>&io_indices
+			, int AOValue)
 	{
 		using namespace glm;
 		Vertex vertex;
 		if (texID>255)
 		{
-			texID = 1;
+			texID = 0;
 		}
 		if (texID==42)
 		{
-			texID = 1;
+			texID = 0;
 		}else if (texID==40)
 		{
 			texID = 2;
@@ -321,15 +529,43 @@ namespace Rendering
 			vertex.Set(rightBtm, normalDirs[(int)i_direction], vec4(texTileOffset.x, texTileOffset.y, width, 0));
 			io_vertices.push_back(vertex);
 
-			// Triangle_1
-			io_indices.push_back(index_3);
-			io_indices.push_back(index_1);
-			io_indices.push_back(index_0);
+			int vertSize = io_vertices.size();
+			int AOCounter = 0;
+			int AOValues[4];
+			while (AOCounter < 4)
+			{
+				unsigned char cornerAO = (unsigned char)(AOValue >> (8 * AOCounter));
+				AOValues[AOCounter] = cornerAO;
+				float light = cornerAO * 0.6f;
+				Vertex &vert = io_vertices[vertSize - 4 + AOCounter];
+				vert.color[3] = light;
+				AOCounter++;
+			}
+			if (AOValues[1] + AOValues[3] < AOValues[0] + AOValues[2])
+			{
+				// Triangle_1
+				io_indices.push_back(index_3);
+				io_indices.push_back(index_2);
+				io_indices.push_back(index_0);
 
-			// Triangle_2
-			io_indices.push_back(index_3);
-			io_indices.push_back(index_2);
-			io_indices.push_back(index_1);
+				// Triangle_2
+				io_indices.push_back(index_0);
+				io_indices.push_back(index_2);
+				io_indices.push_back(index_1);
+			}
+			else
+			{
+				// Triangle_1
+				io_indices.push_back(index_3);
+				io_indices.push_back(index_1);
+				io_indices.push_back(index_0);
+
+				// Triangle_2
+				io_indices.push_back(index_3);
+				io_indices.push_back(index_2);
+				io_indices.push_back(index_1);
+			}
+
 
 			break;
 		}
@@ -361,15 +597,43 @@ namespace Rendering
 			io_vertices.push_back(vertex);
 			
 
-			// Triangle_1
-			io_indices.push_back(index_3);
-			io_indices.push_back(index_1);
-			io_indices.push_back(index_0);
+			int vertSize = io_vertices.size();
+			int AOCounter = 0;
+			int AOValues[4];
+			while (AOCounter < 4)
+			{
+				unsigned char cornerAO = (unsigned char)(AOValue >> (8 * AOCounter));
+				AOValues[AOCounter] = cornerAO;
+				float light = cornerAO * 0.6f;
+				Vertex &vert = io_vertices[vertSize - 4 + AOCounter];
+				vert.color[3] = light;
+				AOCounter++;
+			}
+			if (AOValues[1] + AOValues[3] < AOValues[0] + AOValues[2])
+			{
+				// Triangle_1
+				io_indices.push_back(index_3);
+				io_indices.push_back(index_2);
+				io_indices.push_back(index_0);
 
-			// Triangle_2
-			io_indices.push_back(index_3);
-			io_indices.push_back(index_2);
-			io_indices.push_back(index_1);
+				// Triangle_2
+				io_indices.push_back(index_0);
+				io_indices.push_back(index_2);
+				io_indices.push_back(index_1);
+			}
+			else
+			{
+				// Triangle_1
+				io_indices.push_back(index_3);
+				io_indices.push_back(index_1);
+				io_indices.push_back(index_0);
+
+				// Triangle_2
+				io_indices.push_back(index_3);
+				io_indices.push_back(index_2);
+				io_indices.push_back(index_1);
+			}
+
 			break;
 		}
 
@@ -396,15 +660,43 @@ namespace Rendering
 			io_vertices.push_back(vertex);
 			
 
-			// Triangle_1
-			io_indices.push_back(index_0);
-			io_indices.push_back(index_1);
-			io_indices.push_back(index_3);
+			int vertSize = io_vertices.size();
+			int AOCounter = 0;
+			int AOValues[4];
+			while (AOCounter < 4)
+			{
+				unsigned char cornerAO = (unsigned char)(AOValue >> (8 * AOCounter));
+				AOValues[AOCounter] = cornerAO;
+				float light = cornerAO * 0.6f;
+				Vertex &vert = io_vertices[vertSize - 4 + AOCounter];
+				vert.color[3] = light;
+				AOCounter++;
+			}
+			if (AOValues[1] + AOValues[3] < AOValues[0] + AOValues[2])
+			{
+				// Triangle_1
+				io_indices.push_back(index_0);
+				io_indices.push_back(index_1);
+				io_indices.push_back(index_2);
 
-			// Triangle_2
-			io_indices.push_back(index_1);
-			io_indices.push_back(index_2);
-			io_indices.push_back(index_3);
+				// Triangle_2
+				io_indices.push_back(index_0);
+				io_indices.push_back(index_2);
+				io_indices.push_back(index_3);
+			}
+			else
+			{
+				// Triangle_1
+				io_indices.push_back(index_0);
+				io_indices.push_back(index_1);
+				io_indices.push_back(index_3);
+
+				// Triangle_2
+				io_indices.push_back(index_1);
+				io_indices.push_back(index_2);
+				io_indices.push_back(index_3);
+			}
+
 			break;
 		}
 		case X:
@@ -434,16 +726,43 @@ namespace Rendering
 			vertex.Set(rightBtm, normalDirs[(int)i_direction], vec4(texTileOffset.x, texTileOffset.y, width, 0));
 			io_vertices.push_back(vertex);
 			
+			int vertSize = io_vertices.size();
+			int AOCounter = 0;
+			int AOValues[4];
+			while (AOCounter < 4)
+			{
+				unsigned char cornerAO = (unsigned char)(AOValue >> (8 * AOCounter));
+				AOValues[AOCounter] = cornerAO;
+				float light = cornerAO * 0.6f;
+				Vertex &vert = io_vertices[vertSize - 4 + AOCounter];
+				vert.color[3] = light;
+				AOCounter++;
+			}
+			if (AOValues[1] + AOValues[3] < AOValues[0] + AOValues[2])
+			{
+				// Triangle_1
+				io_indices.push_back(index_0);
+				io_indices.push_back(index_1);
+				io_indices.push_back(index_2);
 
-			// Triangle_1
-			io_indices.push_back(index_0);
-			io_indices.push_back(index_1);
-			io_indices.push_back(index_3);
+				// Triangle_2
+				io_indices.push_back(index_0);
+				io_indices.push_back(index_2);
+				io_indices.push_back(index_3);
+			}
+			else
+			{
+				// Triangle_1
+				io_indices.push_back(index_0);
+				io_indices.push_back(index_1);
+				io_indices.push_back(index_3);
 
-			// Triangle_2
-			io_indices.push_back(index_1);
-			io_indices.push_back(index_2);
-			io_indices.push_back(index_3);
+				// Triangle_2
+				io_indices.push_back(index_1);
+				io_indices.push_back(index_2);
+				io_indices.push_back(index_3);
+			}
+
 
 			break;
 		}
@@ -475,15 +794,43 @@ namespace Rendering
 			io_vertices.push_back(vertex);
 			
 
-			// Triangle_1
-			io_indices.push_back(index_0);
-			io_indices.push_back(index_1);
-			io_indices.push_back(index_3);
+			int vertSize = io_vertices.size();
+			int AOCounter = 0;
+			int AOValues[4];
+			while (AOCounter < 4)
+			{
+				unsigned char cornerAO = (unsigned char)(AOValue >> (8 * AOCounter));
+				AOValues[AOCounter] = cornerAO;
+				float light = cornerAO * 0.6f;
+				Vertex &vert = io_vertices[vertSize - 4 + AOCounter];
+				vert.color[3] = light;
+				AOCounter++;
+			}
+			if (AOValues[1] + AOValues[3] < AOValues[0] + AOValues[2])
+			{
+				// Triangle_1
+				io_indices.push_back(index_0);
+				io_indices.push_back(index_1);
+				io_indices.push_back(index_2);
 
-			// Triangle_2
-			io_indices.push_back(index_1);
-			io_indices.push_back(index_2);
-			io_indices.push_back(index_3);
+				// Triangle_2
+				io_indices.push_back(index_0);
+				io_indices.push_back(index_2);
+				io_indices.push_back(index_3);
+			}
+			else
+			{
+				// Triangle_1
+				io_indices.push_back(index_0);
+				io_indices.push_back(index_1);
+				io_indices.push_back(index_3);
+
+				// Triangle_2
+				io_indices.push_back(index_1);
+				io_indices.push_back(index_2);
+				io_indices.push_back(index_3);
+			}
+
 			break;
 		}
 
@@ -511,15 +858,42 @@ namespace Rendering
 			io_vertices.push_back(vertex);
 			
 
-			// Triangle_1
-			io_indices.push_back(index_3);
-			io_indices.push_back(index_1);
-			io_indices.push_back(index_0);
+			int vertSize = io_vertices.size();
+			int AOCounter = 0;
+			int AOValues[4];
+			while (AOCounter < 4)
+			{
+				unsigned char cornerAO = (unsigned char)(AOValue >> (8 * AOCounter));
+				AOValues[AOCounter] = cornerAO;
+				float light = cornerAO * 0.6f;
+				Vertex &vert = io_vertices[vertSize - 4 + AOCounter];
+				vert.color[3] = light;
+				AOCounter++;
+			}
+			if (AOValues[1] + AOValues[3] < AOValues[0] + AOValues[2])
+			{
+				// Triangle_1
+				io_indices.push_back(index_3);
+				io_indices.push_back(index_2);
+				io_indices.push_back(index_0);
 
-			// Triangle_2
-			io_indices.push_back(index_3);
-			io_indices.push_back(index_2);
-			io_indices.push_back(index_1);
+				// Triangle_2
+				io_indices.push_back(index_0);
+				io_indices.push_back(index_2);
+				io_indices.push_back(index_1);
+			}
+			else
+			{
+				// Triangle_1
+				io_indices.push_back(index_3);
+				io_indices.push_back(index_1);
+				io_indices.push_back(index_0);
+
+				// Triangle_2
+				io_indices.push_back(index_3);
+				io_indices.push_back(index_2);
+				io_indices.push_back(index_1);
+			}
 			break;
 		}
 

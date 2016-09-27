@@ -18,5 +18,5 @@ void main(void)
 	vec4 sampledColor = texture( renderedTexture, decodeUV);                                                    
 	
 	
-	color = sampledColor.xyz * point_color.xyz;
+	color = sampledColor.xyz * point_color.w;
 } 

@@ -162,6 +162,8 @@ void World::Intilize()
 	m_needToSort = true; 
 	m_exitThread = false;
 
+	timer = 0.0f;
+
 
 }
 void World::ShutDown()
@@ -171,6 +173,8 @@ void World::ShutDown()
 
 void World::Update(float delta)//TODO: delta time
 {
+	timer += delta;
+
 	using namespace glm;
 	using namespace std;
 
@@ -220,6 +224,7 @@ void World::Update(float delta)//TODO: delta time
 			TryActivateChunk(it->second);
 			it++;
 		}
+
 		GenerateChunkMeshes();
 	}
 
@@ -338,10 +343,10 @@ void World::ClearAllDataOnExit()
 }
 
 
-// SDL?
 // Generation proceeds only when neighbor chunks ready
 bool World::TryActivateChunk(Chunk *pChunk)
 {
+	// Loaded == waiting to add neighbor references
 	if (pChunk->state != Chunk::Loaded)
 	{
 		return false;
@@ -355,11 +360,11 @@ bool World::TryActivateChunk(Chunk *pChunk)
 		if (pChunk->pNeighbors[i] != nullptr)
 			continue;
 
+		// Put all neighbor references
 		vec2 chunkID = centerChunkID + Chunk::neighborOffsets[i];
 		std::map<glm::vec2, Chunk*, vec2_cmp>::iterator it = m_worldChunks.find(chunkID);
 		if (it != m_worldChunks.end())
 		{
-			// TODO: ref mutually
 			pChunk->pNeighbors[i] = it->second;
 			it->second->pNeighbors[Chunk::neighborIndexMutual[i]] = pChunk;
 		}
@@ -373,6 +378,25 @@ bool World::TryActivateChunk(Chunk *pChunk)
 	if (isAllSet)
 	{
 		m_meshGeneratingChunks.push_back(centerChunkID);
+		
+		// Put all neighbor references for tiles
+		{
+			for (int tileIndex = 0; tileIndex < 16; tileIndex++)
+			{
+				Tile *pTile = pChunk->GetTileByID(tileIndex);
+				for (int offsetIndex = 0; offsetIndex < 26; offsetIndex++)
+				{
+					vec3 tileID = pTile->tileID + Tile::neighborOffsets_26[offsetIndex];
+					Tile *pNeighborTile = GetTileByTileID(tileID);
+					if (pNeighborTile == nullptr)
+						continue;
+
+					pTile->pNeighbors[offsetIndex] = pNeighborTile;
+					pNeighborTile->pNeighbors[Tile::neighborIndexMutual_26[offsetIndex]] = pTile;
+				}
+			}
+
+		}
 		pChunk->state = Chunk::GeneratingMesh;
 		return true;
 	}
@@ -384,7 +408,7 @@ bool World::TryActivateChunk(Chunk *pChunk)
 // Generate meshes, "maxCountPerFrame" number meshes per frame
 void World::GenerateChunkMeshes()
 {
-	int maxCountPerFrame = 2;
+	int maxCountPerCall = 1;
 
 	std::sort(m_meshGeneratingChunks.begin(), m_meshGeneratingChunks.end(), near2FarSort());
 
@@ -394,12 +418,12 @@ void World::GenerateChunkMeshes()
 		std::map<glm::vec2, Chunk*, vec2_cmp>::iterator it_chunk = m_worldChunks.find(*it);
 		if (it_chunk != m_worldChunks.end())
 		{
-			if (maxCountPerFrame > 0)
+			if (maxCountPerCall > 0)
 			{
 				it_chunk->second->GenerateMesh();
 				it_chunk->second->state = Chunk::AllSet;
 				it = m_meshGeneratingChunks.erase(it);
-				maxCountPerFrame--;
+				maxCountPerCall--;
 			}
 			else
 				return;

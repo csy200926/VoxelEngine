@@ -11,7 +11,7 @@ namespace Rendering
 {
 	struct Vertex
 	{
-		
+
 		GLfloat position[3];
 		GLfloat normal[3];
 		GLubyte uv[4];// This UV is for voxel texture mapping purpose
@@ -37,7 +37,7 @@ namespace Rendering
 			uv[2] = 1;
 			uv[3] = 1;
 		}
-		void Set(glm::vec3 &i_position,glm::vec3& i_normal)
+		void Set(glm::vec3 &i_position, glm::vec3& i_normal)
 		{
 			position[0] = i_position.x;
 			position[1] = i_position.y;
@@ -54,7 +54,7 @@ namespace Rendering
 			uv[2] = 1;
 			uv[3] = 1;
 		}
-		void Set(glm::vec3 &i_position, glm::vec3& i_normal,glm::vec4 &i_uv)
+		void Set(glm::vec3 &i_position, glm::vec3& i_normal, glm::vec4 &i_uv)
 		{
 			position[0] = i_position.x;
 			position[1] = i_position.y;
@@ -64,12 +64,19 @@ namespace Rendering
 			normal[2] = i_normal.z;
 			color[0] = 1.0f;
 			color[1] = 1.0f;
-			color[2] = 0.0f;
+			color[2] = 1.0f;
 			color[3] = 1.0f;
 			uv[0] = i_uv.x;
 			uv[1] = i_uv.y;
 			uv[2] = i_uv.z;
 			uv[3] = i_uv.w;
+		}
+		void SetColor(glm::vec3 &i_color)
+		{
+			color[0] = i_color[0];
+			color[1] = i_color[1];
+			color[2] = i_color[2];
+			color[3] = 1.0f;
 		}
 		//Vertex(	GLfloat x, GLfloat y, GLfloat z, 
 		//		GLfloat r, GLfloat g, GLfloat b, GLfloat a, 

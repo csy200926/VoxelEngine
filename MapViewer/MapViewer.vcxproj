@@ -55,14 +55,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Includes\GLFW;Includes\GL;Includes\glm;Includes\engine;..\..\engine\IOAndRes\;..\..\engine\core\;..\..\engine\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Includes\GLFW;Includes\GL;Includes\glm;Includes\engine;Includes\;..\..\engine\IOAndRes\;..\..\engine\core\;..\..\engine\</AdditionalIncludeDirectories>
       <IntrinsicFunctions>false</IntrinsicFunctions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>Libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;..\..\..\bin\VS2008\core.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;..\..\..\bin\VS2008\core.lib;CEGUIBase-0.lib;CEGUIOpenGLRenderer-0.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -74,7 +74,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Includes\GLFW;Includes\GL;Includes\glm;Includes\engine;..\..\engine\IOAndRes\;..\..\engine\core\;..\..\engine\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Includes\GLFW;Includes\GL;Includes\glm;Includes\engine;Includes\;..\..\engine\IOAndRes\;..\..\engine\core\;..\..\engine\</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
@@ -83,11 +83,13 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>Libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;..\..\..\bin\VS2008\core.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;..\..\..\bin\VS2008\core.lib;CEGUIBase-0.lib;CEGUIOpenGLRenderer-0.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Componenets\Camera.cpp" />
+    <ClCompile Include="Componenets\GUI.cpp" />
+    <ClCompile Include="Componenets\InputManager.cpp" />
     <ClCompile Include="Componenets\Material.cpp" />
     <ClCompile Include="Componenets\Mesh.cpp" />
     <ClCompile Include="Componenets\MeshPoints.cpp" />
@@ -101,11 +103,14 @@
     <ClCompile Include="RandomGenerator.cpp" />
     <ClCompile Include="StrangeTree.cpp" />
     <ClCompile Include="Utilities\stb_image.c" />
+    <ClCompile Include="Utilities\Timing.cpp" />
     <ClCompile Include="Utilities\WinTiming.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BitMap\BitMap.h" />
     <ClInclude Include="Componenets\Camera.h" />
+    <ClInclude Include="Componenets\GUI.h" />
+    <ClInclude Include="Componenets\InputManager.h" />
     <ClInclude Include="Componenets\Material.h" />
     <ClInclude Include="Componenets\Mesh.h" />
     <ClInclude Include="Componenets\MeshPoints.h" />
@@ -120,6 +125,7 @@
     <ClInclude Include="Utilities.h" />
     <ClInclude Include="Utilities\Debugging.h" />
     <ClInclude Include="Utilities\stb_image.h" />
+    <ClInclude Include="Utilities\Timing.h" />
     <ClInclude Include="Utilities\WinTiming.h" />
   </ItemGroup>
   <ItemGroup>

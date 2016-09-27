@@ -6,15 +6,34 @@
 class Tile
 {
 public:
-	Tile *pNeighbors;
+	static glm::vec3 neighborOffsets_26[26];
+	static int neighborIndexMutual_26[26];
+
+	Tile **pNeighbors;
 	int *pData;//4096 length
 	glm::vec3 tileID;
 	Tile()
 	{
-		pNeighbors = nullptr;
+		pNeighbors = new Tile*[26];
 		pData = new int[4096];
 
+		for (int i = 0; i < 26; i++)
+		{
+			pNeighbors[i] = nullptr;
+		}
+
 		memset(pData, 1, sizeof(int) * 4096);
+	}
+	void ClearRefTiNeighbors()
+	{	
+		using namespace glm;
+		for (int offsetIndex = 0; offsetIndex < 26; offsetIndex++)
+		{
+			Tile *pNeighbor = pNeighbors[offsetIndex];
+			pNeighbor->pNeighbors[Tile::neighborIndexMutual_26[offsetIndex]] = nullptr;
+			pNeighbors[offsetIndex] = nullptr;
+		}
+		
 	}
 
 	~Tile()
@@ -22,6 +41,10 @@ public:
 		if (pData != nullptr)
 		{
 			delete[] pData;
+		}
+		if (pNeighbors != nullptr)
+		{
+			delete[] pNeighbors;
 		}
 
 	}

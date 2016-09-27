@@ -12,7 +12,7 @@
 
 //#define POINT_MODE
 
-namespace Rendering
+namespace Rendering 
 {
 	Mesh::Mesh()
 	{

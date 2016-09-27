@@ -101,6 +101,7 @@ private:
 	std::thread *m_pThread;
 	static World *pInstance;
 
+	float timer;
 
 	//[  1  1  1  1           1  1  1  1       1  1  1  1  1  1  1  1 ]
 	int GetBlockArrayIndex(const int biasX, const int y, const int biasZ)

@@ -4,6 +4,8 @@
 
 #include "Componenets/Mesh.h"
 #include "Game/World.h"
+
+#include <map>
 namespace Rendering
 {
 
@@ -38,14 +40,38 @@ namespace Rendering
 			, int texID
 			, QuadDir i_direction
 			, std::vector<Vertex> &io_vertices
-			, std::vector<unsigned int>&io_indices);
+			, std::vector<unsigned int>&io_indices
+			, int AOValue);
 	private:
 		int lastMask[16 * 16];
 		int thisMask[16 * 16];
 
+
 		glm::vec3 normalDirs[6];
-		
+		static glm::vec3 Offsets_AO[72];
 		static glm::vec3 neighborIndex6Side[6];
+		struct vec3_cmp {
+			inline bool operator()(const glm::vec3 &l, const glm::vec3 &r)
+			{
+				if (l.x < r.x)
+				{
+					return true;
+				}
+				else if (l.x == r.x)
+				{
+					if (l.y < r.y)
+					{
+						return true;
+					}
+					else if (l.y == r.y)
+					{
+						return l.z < r.z;
+					}
+				}
+				return false;
+			}
+		};
+		std::map<glm::vec3, int,vec3_cmp> NeightborOffsetIndexMap;
 
 		bool CheckCubeSur(int thisBlockID, int &thisMask, int lastMask);
 
@@ -61,8 +87,24 @@ namespace Rendering
 			std::vector<Vertex> &io_vertices,
 			std::vector<unsigned int>&io_indices);
 
+		int AOLevel(int side1,int side2,int corner)
+		{
+			if (side1 != 0 && side2 != 0)
+			{
+				return 0;
+			}
+			return 3 - (side1 + side2 + corner);
+		}
 
+		int GetTileDataByIndex(int x_local, int y_local, int z_local, int*data)
+		{
+			if (x_local < 0 || x_local > 15
+				|| y_local < 0 || y_local > 15
+				|| z_local < 0 || z_local > 15)
+				return 0;
 
+			return data[x_local * 16 * 16 + y_local * 16 + z_local];
+		}
 	};
 
 

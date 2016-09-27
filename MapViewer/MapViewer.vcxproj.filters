@@ -34,6 +34,15 @@
     <ClCompile Include="Utilities\WinTiming.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
+    <ClCompile Include="Componenets\GUI.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Componenets\InputManager.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\Timing.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BitMap\BitMap.h" />
@@ -71,6 +80,15 @@
       <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="Utilities\WinTiming.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Componenets\GUI.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Componenets\InputManager.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\Timing.h">
       <Filter>Utilities</Filter>
     </ClInclude>
   </ItemGroup>

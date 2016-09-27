@@ -8,7 +8,7 @@
 #include "BitMap/BitMap.h"
 #include "detail/func_common.hpp"
 
-#include "Utilities/WinTiming.h"
+#include "Utilities/Timing.h"
 #include "Utilities.h"
 #include "Componenets/Camera.h"
 
@@ -39,6 +39,10 @@
 #include <windows.h>
 
 
+#include "Componenets/InputManager.h"
+#include "Componenets/GUI.h"
+#include "SDL/SDL.h"
+
 
 using namespace AGE;
 
@@ -48,38 +52,28 @@ using namespace glm;
 
 #pragma region static variables
 GLFWwindow* window;
-unsigned int ScreenHeight = 600, ScreenWidth = 800;
-
+unsigned int ScreenHeight = 768*1.5f, ScreenWidth = 1024*1.5f;
+bool isGameRunning = true;
 #pragma endregion
 
 
 #pragma region input Call backs
 
 // Input helpers
-int keyStates[400];
-int mouseState[8];
-vec2 s_mouePos, s_lastMousePos(400, 300);
 bool s_wireframeMode = false;
-#define KEY_HELD 1
-#define KEY_RELEASED 0 
 
-// Document says do not use this to implement camera control?
-void SetMousePos(double x, double y)
+static void mousePos_callback()//(GLFWwindow* window, double x, double y)
 {
-	glfwSetCursorPos(window, x, y);
-}
+	using namespace glm;
+	using namespace Rendering;
+	InputManager *pInputManger = InputManager::GetInstance();
 
-static void mousePos_callback(GLFWwindow* window, double x, double y)
-{
-
-	s_mouePos.x = x; s_mouePos.y = y;
-	vec2 offset = s_mouePos - s_lastMousePos;
-	s_lastMousePos = s_mouePos;
+	int x = 0, y = 0;
+	SDL_GetRelativeMouseState(&x,&y);
+	vec2 offset(x, y);
 
 	static const float factor = 0.001f; 
 	offset *= factor;
-
-	//PrintVec2("offset", lastMousePos);
 
 	// get the axis to rotate around the x-axis. 
 	vec3 Axis = cross(Rendering::Camera::viewVector - Rendering::Camera::cameraPos, vec3(0, 1, 0));
@@ -92,75 +86,41 @@ static void mousePos_callback(GLFWwindow* window, double x, double y)
 
 }
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, GL_TRUE);
-
-	if (action != GLFW_RELEASE)
-	{
-		keyStates[key] = KEY_HELD;
-	}
-	else
-	{
-		keyStates[key] = KEY_RELEASED;
-	}
-}
-
-
-static void mouse_callback(GLFWwindow* window, int key, int action, int mods)
-{
-	if (action != GLFW_RELEASE)
-	{
-		mouseState[key] = KEY_HELD;
-	}
-	else
-	{
-		mouseState[key] = KEY_RELEASED;
-	}
-}
-
-
-bool GetKey(int key)
-{
-	return keyStates[key] == KEY_HELD;
-}
-bool GetMouse(int key)
-{
-	return mouseState[key] == KEY_HELD;
-}
-
 void InputUpdates()
 {
 	using namespace glm;
+	using namespace Rendering;
+
 	float speed = 0.1f;
 
-	if (GetKey(GLFW_KEY_LEFT_SHIFT))
+	InputManager *pInputManger = InputManager::GetInstance();
+
+	if (pInputManger->isKeyPressed(SDLK_LSHIFT))//if (GetKey(GLFW_KEY_LEFT_SHIFT))
 		speed = 1.5f;
 	vec3 forwarDir = Rendering::Camera::GetForwardDir();
 
 	vec3 move(0, 0, 0);
-	if (GetKey(GLFW_KEY_W))
+	if (pInputManger->isKeyPressed(SDLK_w))//if (GetKey(GLFW_KEY_W))
 	{
 		move += Rendering::Camera::GetForwardDir() * speed;
 	}
-	if (GetKey(GLFW_KEY_S))
+	if (pInputManger->isKeyPressed(SDLK_s))//if (GetKey(GLFW_KEY_S))
 	{
 		move -= Rendering::Camera::GetForwardDir() * speed;
 	}
-	if (GetKey(GLFW_KEY_A))
+	if (pInputManger->isKeyPressed(SDLK_a))//if (GetKey(GLFW_KEY_A))
 	{
 		move -= Rendering::Camera::GetLeftDir() * speed;
 	}
-	if (GetKey(GLFW_KEY_D))
+	if (pInputManger->isKeyPressed(SDLK_d))//if (GetKey(GLFW_KEY_D))
 	{
 		move += Rendering::Camera::GetLeftDir() * speed;
 	}
-	if (GetKey(GLFW_KEY_Q))
+	if (pInputManger->isKeyPressed(SDLK_q))//if (GetKey(GLFW_KEY_Q))
 	{
 		move -= vec3(0, 1, 0) * speed;
 	}
-	if (GetKey(GLFW_KEY_E))
+	if (pInputManger->isKeyPressed(SDLK_e))//if (GetKey(GLFW_KEY_E))
 	{
 		move += vec3(0, 1, 0) * speed;
 	}
@@ -171,24 +131,15 @@ void InputUpdates()
 	Rendering::Camera::Update();
 
 	s_wireframeMode = false;
-	if (GetKey(GLFW_KEY_K))
+	if (pInputManger->isKeyPressed(SDLK_k))//if (GetKey(GLFW_KEY_K))
 	{
 		s_wireframeMode = true;
 	}
-}
-
-
-
-// Called when the window is resized
-void window_resized(GLFWwindow* window, int width, int height) {
-	// Use red to clear the screen
-	glClearColor(0, 0, 0, 1);
-
-	// Set the viewport
-	glViewport(0, 0, width, height);
-
-	glClear(GL_COLOR_BUFFER_BIT);
-	glfwSwapBuffers(window);
+	if (pInputManger->isKeyPressed(SDLK_ESCAPE))//if (GetKey(GLFW_KEY_K))
+	{
+		isGameRunning = false;
+	}
+	mousePos_callback();
 }
 
 #pragma endregion
@@ -341,11 +292,14 @@ void CubeWorldInit(const std::string& modName, const std::string& worldName)
 
 
 
-int main() {
+int main(int argc, char** argv) {
 
 	
 	{
-
+		SDL_Init(SDL_INIT_EVERYTHING);
+		SDL_Window *window = SDL_CreateWindow("STAY or TO GO", 200, 200, ScreenWidth, ScreenHeight, SDL_WINDOW_OPENGL);
+		SDL_GLContext glContext = SDL_GL_CreateContext(window);
+		
 		CubeWorldInit("Base", "Skyland");
 
 		// Start GL context and O/S window using the GLFW helper library
@@ -353,25 +307,6 @@ int main() {
 			fprintf(stderr, "ERROR: could not start GLFW3\n");
 			return 1;
 		}
-
-		// Create a window
-		window = glfwCreateWindow(ScreenWidth, ScreenHeight, "This is not a game engine!", NULL, NULL);
-		if (!window) {
-			fprintf(stderr, "ERROR: could not open window with GLFW3\n");
-			glfwTerminate();
-			return 1;
-		}
-	
-		// Bind input callbacks
-		glfwMakeContextCurrent(window);
-		glfwSetKeyCallback(window, key_callback);
-		glfwSetMouseButtonCallback(window, mouse_callback);
-		glfwSetCursorPosCallback(window, mousePos_callback);
-		glfwSetWindowSizeCallback(window, window_resized);
-
-		// used for camera control
-		glfwSetCursorPos(window, ScreenWidth / 2, ScreenHeight/2);
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		// start GLEW extension handler
 		glewExperimental = GL_TRUE;
@@ -388,23 +323,53 @@ int main() {
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 
-		float counter = 0.0f; 
+		float timer = 0.0f;
 	
 		World world;
-
 		world.Intilize(); 
+		Utilities::Timing timing;
+		timing.init(60);
 
-		while (!glfwWindowShouldClose(window))
+		//Input stuff
+		Rendering::InputManager inputManager;
+		SDL_Event inputEvent;
+
+		SDL_SetRelativeMouseMode(SDL_TRUE);
+		while (isGameRunning)//(!glfwWindowShouldClose(window))
 		{
-			world.Update(1);
+			timing.begin();
 
-			InputUpdates(); 
+			float delta = Utilities::Timing::getDelta();
+			timer += delta;
+
+			//Will keep looping until there are no more events to process
+			while (SDL_PollEvent(&inputEvent)) {
+				switch (inputEvent.type) {
+				case SDL_QUIT:
+					isGameRunning = false;
+					break;
+				case SDL_MOUSEMOTION:
+					inputManager.setMouseCoords((float)inputEvent.motion.x, (float)inputEvent.motion.y);
+					break;
+				case SDL_KEYDOWN:
+					inputManager.pressKey(inputEvent.key.keysym.sym);
+					break;
+				case SDL_KEYUP:
+					inputManager.releaseKey(inputEvent.key.keysym.sym);
+					break;
+				case SDL_MOUSEBUTTONDOWN:
+					inputManager.pressKey(inputEvent.button.button);
+					break;
+				case SDL_MOUSEBUTTONUP:
+					inputManager.releaseKey(inputEvent.button.button);
+					break;
+				}
+			}
 		
 			material.Activate();
 
 			// Normal GL draw methods
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
 			world.Draw();
 
@@ -416,14 +381,21 @@ int main() {
 			{
 				glPolygonMode(GL_FRONT, GL_FILL);
 			}
-		
 
 			glEnable(GL_PROGRAM_POINT_SIZE);
 
-			// update other events like input handling 
-			glfwPollEvents();
-			// put the stuff we've been drawing onto the display
-			glfwSwapBuffers(window);
+			SDL_GL_SwapWindow(window);
+
+			world.Update(delta);
+
+			if (timer > 0.03f)
+			{
+				timer = 0.0f;
+				InputUpdates();
+			}
+			
+			
+			timing.end();
 		}
 
 		world.ShutDown();
