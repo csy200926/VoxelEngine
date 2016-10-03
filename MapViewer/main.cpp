@@ -7,6 +7,8 @@
 #include <set>
 #include "BitMap/BitMap.h"
 #include "detail/func_common.hpp"
+#include "gtc/matrix_transform.hpp"
+#include "gtx/quaternion.hpp"
 
 #include "Utilities/Timing.h"
 #include "Utilities.h"
@@ -52,7 +54,7 @@ using namespace glm;
 
 #pragma region static variables
 GLFWwindow* window;
-unsigned int ScreenHeight = 768*1.8f, ScreenWidth = 1024*1.8f;
+unsigned int ScreenHeight = 768, ScreenWidth = 1024;
 bool isGameRunning = true;
 #pragma endregion
 
@@ -85,6 +87,10 @@ static void mousePos_callback()//(GLFWwindow* window, double x, double y)
 	Rendering::Camera::RotateCamera(-offset.x, 0, 1, 0);//rotate around local y axis
 
 }
+
+// hack
+vec3 shadowCameraPos(232.41f, 346.67f, 13.65f);
+vec3 shadowCameratarget(231.025f, 345.247f, 13.87f);
 
 void InputUpdates()
 {
@@ -124,6 +130,10 @@ void InputUpdates()
 	{
 		move += vec3(0, 1, 0) * speed;
 	}
+
+	vec3 moveXZ(move.x,0,move.z);
+	//shadowCameraPos += moveXZ;
+	//shadowCameratarget += moveXZ;
 
 	Rendering::Camera::cameraPos += move;
 	Rendering::Camera::viewVector = Rendering::Camera::cameraPos + forwarDir * 10.0f;
@@ -311,17 +321,72 @@ int main(int argc, char** argv) {
 		// start GLEW extension handler
 		glewExperimental = GL_TRUE;
 		glewInit();
-	
+
+		system("CLS");
+		printf("OpenGL version supported by this platform (%s): \n",glGetString(GL_VERSION));
+
+
+
+
+
+
+
+
+
+
 		Rendering::Texture texture;
 		texture.LoadFromPath("Images/terrain.png");
+		const int shadowMapSize = 1024;
+		GLuint depthTexture; GLuint FramebufferName = 0;
+		{
+			glGenTextures(1, &depthTexture);
+			glBindTexture(GL_TEXTURE_2D, depthTexture);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, shadowMapSize, shadowMapSize, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+			glGenFramebuffers(1, &FramebufferName);
+			glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			//glDrawBuffer(GL_NONE);
+		}
+
+		glm::mat4 biasMatrix(
+			0.5, 0.0, 0.0, 0.0,
+			0.0, 0.5, 0.0, 0.0,
+			0.0, 0.0, 0.5, 0.0,
+			0.5, 0.5, 0.5, 1.0
+			);
+
+		Rendering::Material material_shadow;
+		{
+			material_shadow.Init("Shaders/vert_shadowMap.shader", "Shaders/frag_shadowMap.shader");
+			material_shadow.m_DepthMVPLocation = glGetUniformLocation(material_shadow.GetProgram(), "DepthMVP_Matrix");
+		}
 
 		Rendering::Material material;
-		material.Init("Shaders/vert_regular.shader", "Shaders/frag_atlas.shader");
-		material.SetTexture(&texture);
+		{
+			material.Init("Shaders/vert_regular.shader", "Shaders/frag_atlas.shader");
+			material.m_DepthMVPLocation = glGetUniformLocation(material.GetProgram(), "DepthMVP_Matrix");
+			material.SetTexture(&texture);
+		}
 
 		Rendering::Material material_linemode;
-		material_linemode.Init("Shaders/vert_linemode.shader", "Shaders/frag_linemode.shader");
+		{
+			material_linemode.Init("Shaders/vert_linemode.shader", "Shaders/frag_linemode.shader");
+		}
 
+
+
+
+
+
+
+		glViewport(0, 0, ScreenWidth, ScreenHeight);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
@@ -329,15 +394,24 @@ int main(int argc, char** argv) {
 		float timer = 0.0f;
 	
 		World world;
-		world.Intilize(); 
+		world.Initilize(); 
 		Utilities::Timing timing;
 		timing.init(60);
 
-		//Input stuff
+		//Input stuff 
 		Rendering::InputManager inputManager;
 		SDL_Event inputEvent;
 
 		SDL_SetRelativeMouseMode(SDL_TRUE);
+
+
+
+
+
+
+
+
+
 		while (isGameRunning)//(!glfwWindowShouldClose(window))
 		{
 			timing.begin();
@@ -369,9 +443,9 @@ int main(int argc, char** argv) {
 				}
 			}
 		
-
 			// Normal GL draw methods
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
 
 			if (s_wireframeMode == true)
@@ -386,25 +460,65 @@ int main(int argc, char** argv) {
 				
 			}
 
-			material.Activate();
+			// Draw shadow map
+			glm::mat4 depthMVP;
+			{
+				static const GLfloat one = 1.0f;
+				glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+				glClearBufferfv(GL_DEPTH, 0, &one);
+				glViewport(0, 0, shadowMapSize, shadowMapSize);
+
+				glm::vec3 lightInvDir = glm::vec3(0.5f, 0.5f, 0.5f);
+
+				// Compute the MVP matrix from the light's point of view
+				glm::mat4 depthProjectionMatrix = glm::ortho<float>(-100, 100, -100,50, -100, 1000);
+				glm::mat4 depthViewMatrix = glm::lookAt(shadowCameraPos, shadowCameratarget, glm::vec3(0, 1, 0));
+				glm::mat4& depthModelMatrix = Rendering::Camera::ModelToWorld_Matrix;//glm::mat4(1.0);
+				depthMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+
+				GLint shadowProgram = material_shadow.GetProgram();
+				glUseProgram(shadowProgram);
+
+				glUniformMatrix4fv(material_shadow.m_DepthMVPLocation, 1, GL_FALSE, &depthMVP[0][0]);
+				
+				//material_shadow.Activate();
+				world.Draw();
+
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			}
+
+			// Draws
+			{
+				glViewport(0, 0, ScreenWidth, ScreenHeight);
+
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, depthTexture);
+
+				material.Activate();
+
+				glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
+				glUniformMatrix4fv(material.m_DepthMVPLocation, 1, GL_FALSE, &depthBiasMVP[0][0]);
+				
+				world.Draw();
+			}
+
+			vec3 temp = shadowCameraPos - shadowCameratarget;
+			temp = normalize(temp);
+
+			// Updates
+			{
+				world.Update(delta);
+
+				if (timer > 0.03f)
+				{
+					timer = 0.0f;
+					InputUpdates();
+				}
+			}
+
 			
-
-
-			world.Draw();
-
-			glEnable(GL_PROGRAM_POINT_SIZE);
-
 			SDL_GL_SwapWindow(window);
 
-			world.Update(delta);
-
-			if (timer > 0.03f)
-			{
-				timer = 0.0f;
-				InputUpdates();
-			}
-			
-			
 			timing.end();
 		}
 

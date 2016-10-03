@@ -30,7 +30,7 @@ namespace Rendering
 	{
 		//printf("cameraPos %f,%f,%f \n", cameraPos.x, cameraPos.y, cameraPos.z);
 		//printf("viewVector %f,%f,%f \n", viewVector.x, viewVector.y, viewVector.z);
-		WorldToView_Matrix = glm::lookAt(cameraPos, viewVector, upVector);
+		WorldToView_Matrix = glm::lookAt(cameraPos, viewVector, glm::vec3(0, 1, 0));
 	}
 
 

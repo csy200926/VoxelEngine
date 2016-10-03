@@ -22,7 +22,7 @@ public:
 	 
 	static World* GetInstance();
 
-	void Intilize();
+	void Initilize();
 	void ShutDown();
 
 	void StartThreading();

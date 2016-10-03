@@ -148,11 +148,11 @@ void World::Threading()
 
 }
 #pragma endregion
-void World::Intilize()
+void World::Initilize()
 {
 	using namespace  glm;
 	vec3 cameraPos(0, 200, 0);
-	vec3 target(0, 100, -100);
+	vec3 target(0, 180, 10);
 	vec3 up(0, 1, 0);
 
 	Rendering::Camera::SetLookAt(cameraPos, target, up);

@@ -125,5 +125,11 @@
     <None Include="Shaders\vert_linemode.shader">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\vert_shadowMap.shader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\frag_shadowMap.shader">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

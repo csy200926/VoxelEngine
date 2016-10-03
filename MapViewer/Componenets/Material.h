@@ -12,18 +12,21 @@ namespace Rendering
 	{
 	private:
 
-		GLint m_VMatrixLocation;
-		GLint m_MMatrixLocation;
-		GLint m_PMatrixLocation;
-
 		Texture *m_texture;
 		Texture *m_textureNormal;
 
 		GLuint load_and_compile_shader(const char *fname, GLenum shaderType);
 		void read_shader_src(const char *fname, std::vector<char> &buffer);
+
 	public:
+		GLint m_VMatrixLocation;
+		GLint m_MMatrixLocation;
+		GLint m_PMatrixLocation;
 
+		// Hack
+		GLint m_DepthMVPLocation;
 
+		GLint GetProgram(){ return m_program; };
 
 		bool Init(const char *i_vs, const char * i_fs);
 		bool ShowDown();
