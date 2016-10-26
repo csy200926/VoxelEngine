@@ -43,6 +43,12 @@
     <ClCompile Include="Utilities\Timing.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
+    <ClCompile Include="Componenets\TextureCube.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Componenets\SkyBox.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BitMap\BitMap.h" />
@@ -91,6 +97,12 @@
     <ClInclude Include="Utilities\Timing.h">
       <Filter>Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="Componenets\TextureCube.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Componenets\SkyBox.h">
+      <Filter>Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Components">
@@ -129,6 +141,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\frag_shadowMap.shader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\cube_vs.shader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\cube_fs.shader">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

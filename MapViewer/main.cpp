@@ -12,8 +12,8 @@
 
 #include "Utilities/Timing.h"
 #include "Utilities.h"
-#include "Componenets/Camera.h"
-
+#include "Componenets/SkyBox.h"
+#include "Componenets/TextureCube.h"
 #include "Componenets/Camera.h"
 #include "Componenets/MeshPoints.h"
 #include "Componenets/Material.h"
@@ -56,6 +56,13 @@ using namespace glm;
 GLFWwindow* window;
 unsigned int ScreenHeight = 768, ScreenWidth = 1024;
 bool isGameRunning = true;
+
+#define FRONT "Images/skyBox/stormydays_ft.tga"
+#define BACK "Images/skyBox/stormydays_bk.tga"
+#define TOP "Images/skyBox/stormydays_up.tga"
+#define BOTTOM "Images/skyBox/stormydays_dn.tga"
+#define LEFT "Images/skyBox/stormydays_lf.tga"
+#define RIGHT "Images/skyBox/stormydays_rt.tga"
 #pragma endregion
 
 
@@ -306,6 +313,8 @@ int main(int argc, char** argv) {
 
 	
 	{
+		using namespace Rendering;
+
 		SDL_Init(SDL_INIT_EVERYTHING);
 		SDL_Window *window = SDL_CreateWindow("STAY or TO GO", 200, 200, ScreenWidth, ScreenHeight, SDL_WINDOW_OPENGL);
 		SDL_GLContext glContext = SDL_GL_CreateContext(window);
@@ -326,8 +335,16 @@ int main(int argc, char** argv) {
 		printf("OpenGL version supported by this platform (%s): \n",glGetString(GL_VERSION));
 
 
+		//Skybox
+		TextureCube *cubeTex = NULL;
+		SkyBox *skyBox = NULL;
+		{
+			cubeTex = new TextureCube();
+			cubeTex->Init(FRONT, BACK, TOP, BOTTOM, LEFT, RIGHT);
 
-
+			skyBox = new SkyBox();
+			skyBox->Init(cubeTex);
+		}
 
 
 
@@ -486,10 +503,12 @@ int main(int argc, char** argv) {
 
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			}
-
+			
 			// Draws
 			{
 				glViewport(0, 0, ScreenWidth, ScreenHeight);
+
+				skyBox->Draw();
 
 				glActiveTexture(GL_TEXTURE1);
 				glBindTexture(GL_TEXTURE_2D, depthTexture);

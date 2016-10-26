@@ -93,7 +93,9 @@
     <ClCompile Include="Componenets\Material.cpp" />
     <ClCompile Include="Componenets\Mesh.cpp" />
     <ClCompile Include="Componenets\MeshPoints.cpp" />
+    <ClCompile Include="Componenets\SkyBox.cpp" />
     <ClCompile Include="Componenets\Texture.cpp" />
+    <ClCompile Include="Componenets\TextureCube.cpp" />
     <ClCompile Include="FractalNoise.cpp" />
     <ClCompile Include="Game\Chunk.cpp" />
     <ClCompile Include="Game\World.cpp" />
@@ -114,7 +116,9 @@
     <ClInclude Include="Componenets\Material.h" />
     <ClInclude Include="Componenets\Mesh.h" />
     <ClInclude Include="Componenets\MeshPoints.h" />
+    <ClInclude Include="Componenets\SkyBox.h" />
     <ClInclude Include="Componenets\Texture.h" />
+    <ClInclude Include="Componenets\TextureCube.h" />
     <ClInclude Include="FractalNoise.h" />
     <ClInclude Include="Game\Chunk.h" />
     <ClInclude Include="Game\World.h" />
@@ -129,6 +133,8 @@
     <ClInclude Include="Utilities\WinTiming.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\cube_fs.shader" />
+    <None Include="Shaders\cube_vs.shader" />
     <None Include="Shaders\frag.shader" />
     <None Include="Shaders\frag_atlas.shader" />
     <None Include="Shaders\frag_linemode.shader" />
