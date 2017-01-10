@@ -70,6 +70,7 @@ bool isGameRunning = true;
 
 // Input helpers
 bool s_wireframeMode = false;
+bool s_useShadow = false;
 
 static void mousePos_callback()//(GLFWwindow* window, double x, double y)
 {
@@ -151,6 +152,11 @@ void InputUpdates()
 	if (pInputManger->isKeyPressed(SDLK_k))//if (GetKey(GLFW_KEY_K))
 	{
 		s_wireframeMode = true;
+	}
+	s_useShadow = false;
+	if (pInputManger->isKeyPressed(SDLK_j))//if (GetKey(GLFW_KEY_K))
+	{
+		s_useShadow = true;
 	}
 	if (pInputManger->isKeyPressed(SDLK_ESCAPE))//if (GetKey(GLFW_KEY_K))
 	{
@@ -476,35 +482,42 @@ int main(int argc, char** argv) {
 				glDisable(GL_POLYGON_OFFSET_LINE);
 				
 			}
-
-			// Draw shadow map
-			glm::mat4 depthMVP;
+			else
 			{
-				static const GLfloat one = 1.0f;
-				glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
-				glClearBufferfv(GL_DEPTH, 0, &one);
-				glViewport(0, 0, shadowMapSize, shadowMapSize);
+				// Draw shadow map
 
-				glm::vec3 lightInvDir = glm::vec3(0.5f, 0.5f, 0.5f);
+				glm::mat4 depthMVP;
+				{
 
-				// Compute the MVP matrix from the light's point of view
-				glm::mat4 depthProjectionMatrix = glm::ortho<float>(-100, 100, -100,50, -100, 1000);
-				glm::mat4 depthViewMatrix = glm::lookAt(shadowCameraPos, shadowCameratarget, glm::vec3(0, 1, 0));
-				glm::mat4& depthModelMatrix = Rendering::Camera::ModelToWorld_Matrix;//glm::mat4(1.0);
-				depthMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+					static const GLfloat one = 1.0f;
+					glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+					glClearBufferfv(GL_DEPTH, 0, &one);
+					glViewport(0, 0, shadowMapSize, shadowMapSize);
 
-				GLint shadowProgram = material_shadow.GetProgram();
-				glUseProgram(shadowProgram);
+					glm::vec3 lightInvDir = glm::vec3(0.5f, 0.5f, 0.5f);
 
-				glUniformMatrix4fv(material_shadow.m_DepthMVPLocation, 1, GL_FALSE, &depthMVP[0][0]);
-				
-				//material_shadow.Activate();
-				world.Draw();
+					// Compute the MVP matrix from the light's point of view
+					glm::mat4 depthProjectionMatrix = glm::ortho<float>(-100, 100, -100, 50, -100, 1000);
+					glm::mat4 depthViewMatrix = glm::lookAt(shadowCameraPos, shadowCameratarget, glm::vec3(0, 1, 0));
+					glm::mat4& depthModelMatrix = Rendering::Camera::ModelToWorld_Matrix;//glm::mat4(1.0);
+					depthMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
 
-				glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			}
-			
-			// Draws
+					GLint shadowProgram = material_shadow.GetProgram();
+					glUseProgram(shadowProgram);
+
+					glUniformMatrix4fv(material_shadow.m_DepthMVPLocation, 1, GL_FALSE, &depthMVP[0][0]);
+					if (s_useShadow)
+					{
+
+						world.Draw();
+					}
+
+					glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+				}
+
+				// Draws
 			{
 				glViewport(0, 0, ScreenWidth, ScreenHeight);
 
@@ -517,9 +530,12 @@ int main(int argc, char** argv) {
 
 				glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
 				glUniformMatrix4fv(material.m_DepthMVPLocation, 1, GL_FALSE, &depthBiasMVP[0][0]);
-				
+
 				world.Draw();
 			}
+			}
+
+
 
 			vec3 temp = shadowCameraPos - shadowCameratarget;
 			temp = normalize(temp);

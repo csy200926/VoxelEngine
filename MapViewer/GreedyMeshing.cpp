@@ -486,17 +486,19 @@ namespace Rendering
 	{
 		using namespace glm;
 		Vertex vertex;
-		if (texID>255)
+		if (texID > 255)
 		{
 			texID = 0;
 		}
-		if (texID==42)
+		if (texID == 42)
 		{
 			texID = 0;
-		}else if (texID==40)
+		}
+		else if (texID == 40)
 		{
 			texID = 2;
-		}else if (texID==139)
+		}
+		else if (texID == 139)
 		{
 			texID = 1;
 		}

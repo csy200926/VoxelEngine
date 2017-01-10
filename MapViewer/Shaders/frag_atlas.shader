@@ -29,5 +29,5 @@ void main(void)
 	color = vertColor.xyz * sampledColor.xyz;
 	color = clamp(sampledColor.xyz * vertColor.xyz - vertColor.w *vertColor.w * 0.05, 0.0, 1.0);
 
-	color = color * visibility ;
+	color = color *visibility;
 } 

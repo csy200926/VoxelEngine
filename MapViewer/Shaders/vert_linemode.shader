@@ -22,7 +22,7 @@ void main(void)
 	if (dis > 0.7)
 		dis = 1.0;
 
-	if (dis < 0.2)
+	if (dis < 0.5)
 		dis = 0.2;
 
 	point_color = vec4(dis);

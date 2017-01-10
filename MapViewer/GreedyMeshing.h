@@ -146,7 +146,8 @@ namespace Rendering
 			else
 			{
 				int index = NeightborOffsetIndexMap[offset];
-
+				if (i_pTile->pNeighbors[index] == 0)
+					return 0;
 				return i_pTile->pNeighbors[index]->pData[x_local * 16 * 16 + y_local * 16 + z_local];
 			}
 
